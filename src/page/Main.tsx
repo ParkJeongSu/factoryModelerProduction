@@ -95,7 +95,6 @@ const useStyles = makeStyles((theme: Theme) =>
 const  Main = ()=> {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
-  const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
   // props.readSidebar();
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -108,7 +107,7 @@ const  Main = ()=> {
         <CssBaseline />
         <Header classes={classes} open={open}  title='Sample'/>
         <Sidebar classes={classes} open ={open}  />
-        <Content classes={classes} fixedHeightPaper ={fixedHeightPaper} />
+        <Content classes={classes} />
       </div>
     );
   }

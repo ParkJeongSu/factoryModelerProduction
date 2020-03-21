@@ -12,10 +12,9 @@ import NomalTable from '../component/NomalTable';
 
 interface ContentProps  {
   classes : any
-  fixedHeightPaper : string
   };
 
-const Content = ({classes , fixedHeightPaper} : ContentProps)=> {
+const Content = ({classes } : ContentProps)=> {
 
     return (
       <main className={classes.content}>
