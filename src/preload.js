@@ -26,7 +26,24 @@ window.deleteDbConfig = function (action) {
 }
 /* Db Config */
 
+/* To Do List */
+window.getTodoList = function () {
+  return ipcRenderer.sendSync('getTodoList');
+}
+window.createTodoList = function(action){
+  return ipcRenderer.sendSync('createTodoList',action);
+}
+window.deleteTodoList = function (action) {
+  return ipcRenderer.sendSync('deleteTodoList',action);
+}
+window.checkedTodoList = function (action) {
+  return ipcRenderer.sendSync('checkedTodoList',action);
+}
+/* To Do List */
 
+/* Db */
 window.dbConnectTest = function (action) {
   return ipcRenderer.sendSync('dbConnectTest',action);
 }
+
+/* Db */

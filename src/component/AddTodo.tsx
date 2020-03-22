@@ -4,7 +4,7 @@ import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 
 interface AddTodoProps  {
-	handleClick: () => void;
+	handleClick: (todo : string) => void;
   };
 
   const AddTodo = ({handleClick} : AddTodoProps)=>{
@@ -29,7 +29,7 @@ interface AddTodoProps  {
             variant="contained"
             type="submit"
 			      color="primary"			
-            onClick={()=>{handleClick();}}
+            onClick={()=>{handleClick(inputValue);}}
           >
             Add Todo
           </Button>

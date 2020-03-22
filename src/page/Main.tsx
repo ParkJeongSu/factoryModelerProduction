@@ -7,8 +7,13 @@ import Content from '../layout/Content';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
-const drawerWidth = 240;
+import { connect } from 'react-redux';
+import { StoreState } from '../store/modules';
+import {actionCreators as ToDoActions, Todo} from '../store/modules/TodoList';
+import {bindActionCreators} from 'redux';
 
+
+const drawerWidth = 240;
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -92,13 +97,28 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 
-const  Main = ()=> {
+interface MainProps {
+  ToDoActions: typeof ToDoActions;
+  todoList : Todo[];
+}
+
+const  Main = ({ToDoActions,todoList} : MainProps)=> {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   React.useEffect(()=>{
     return ()=>{
         console.log('Main unMount 실행');
     };});
+
+    const handlCreateTodo= (todo : string)=>{
+      ToDoActions.createTodoList(todo);
+    }
+    const handleDeleteTodo = (id : number)=>{
+      ToDoActions.deleteTodoList(id);
+    }
+    const handleCheckedTodo = (id : number)=>{
+      ToDoActions.checkedTodoList(id);
+    }
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -108,11 +128,20 @@ const  Main = ()=> {
     return (
       <div className={classes.root}>
         <CssBaseline />
-        <Header classes={classes} open={open}  title='Sample'/>
-        <Sidebar classes={classes} open ={open}  />
-        <Content classes={classes} />
+        <Header classes={classes} open={open} onClick={handleDrawerOpen} title='Sample'/>
+        <Sidebar classes={classes} open ={open} onClick={handleDrawerClose} />
+        <Content classes={classes} todoList = {todoList} create={handlCreateTodo} checked={handleCheckedTodo} deleted = {handleDeleteTodo} />
       </div>
     );
   }
 
-  export default Main;
+
+  const mapStateToProps = ({ TodoList } : StoreState) => ({
+    todoList : TodoList.todoList
+  });
+  
+  const mapDispatchToProps = (dispatch : any) => ({
+    ToDoActions : bindActionCreators(ToDoActions,dispatch)
+  });
+
+  export default connect(mapStateToProps,mapDispatchToProps)(Main);

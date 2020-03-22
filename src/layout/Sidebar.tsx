@@ -11,10 +11,14 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 interface SidebarProps  {
   classes : any;
   open :boolean;
+  onClick : () => void;
   };
 
-  
-const Sidebar = ({classes,open} : SidebarProps)=>{
+const Sidebar = ({classes,open,onClick} : SidebarProps)=>{
+  const handleOnClick = ()=>{
+    console.log('handleOnClick');
+    onClick();
+  }
     return (
         <Drawer
         variant="permanent"
@@ -22,7 +26,7 @@ const Sidebar = ({classes,open} : SidebarProps)=>{
         open={open}
         >
         <div className={classes.toolbarIcon}>
-          <IconButton >
+          <IconButton onClick= {()=>{handleOnClick();}}>
             <ChevronLeftIcon />
           </IconButton>
         </div>

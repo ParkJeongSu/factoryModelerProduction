@@ -1,4 +1,4 @@
-﻿
+﻿import produce from 'immer';
 
 export interface Dbconfig{
   id : number;
@@ -22,7 +22,7 @@ export interface LogInOutState {
   userpw? : string;
 }
 
-import produce from 'immer';
+
 
 // 액션 타입 정의
 const LOGIN = 'LogInOut/LOGIN';

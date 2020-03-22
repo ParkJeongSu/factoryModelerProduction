@@ -9,10 +9,12 @@ export interface Todos  {
   };
 
 interface TodoListProps  {
-	todos : Array<Todos>;
+  todos : Array<Todos>;
+  deleted : (id : number)=>void;
+  checked : (id : number)=>void;
   };
   
-  const TodoList = ({todos} : TodoListProps)=>{
+  const TodoList = ({todos,deleted,checked} : TodoListProps)=>{
     let todoNode = todos.map((todo) => {
       return (
         <Todo 
@@ -20,6 +22,8 @@ interface TodoListProps  {
           todo={ todo.task } 
           id = {todo.id}
           checked = { todo.checked }
+          handleDeleted={deleted}
+          handleChecked={checked}
         />
       )
     });

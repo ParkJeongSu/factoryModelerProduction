@@ -5,16 +5,20 @@ import Grid from '@material-ui/core/Grid';
 import Copyright from './../component/Copyright';
 import ToDoListMain from '../component/ToDoListMain';
 import NomalTable from '../component/NomalTable';
-
+import {actionCreators as ToDoActions, Todo} from '../store/modules/TodoList';
 // import Paper from '@material-ui/core/Paper';
 
 
 
 interface ContentProps  {
   classes : any
+  todoList : Todo[]
+  create: (todo : string ) => void;
+  deleted : (id : number)=>void;
+  checked : (id : number)=>void;
   };
 
-const Content = ({classes } : ContentProps)=> {
+const Content = ({ classes , todoList,create,checked,deleted } : ContentProps)=> {
 
     return (
       <main className={classes.content}>
@@ -32,7 +36,7 @@ const Content = ({classes } : ContentProps)=> {
           {/* Home */}
           <Grid container spacing={3}>
             <Grid item xs={12} md={8} lg={9}>
-              <ToDoListMain todos={[]}/>
+              <ToDoListMain todos={todoList} create={create} deleted = {deleted} checked ={checked} />
             </Grid>
           </Grid>
           {/* Home */}

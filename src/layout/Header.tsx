@@ -20,12 +20,17 @@ interface HeaderProps  {
   title : string;
   open :boolean;
   LoginActions: typeof LoginActions;
+  onClick : () => void;
   };
   
-const Header = ({classes , title,open, LoginActions} : HeaderProps) => {
+const Header = ({classes , title,open, LoginActions,onClick} : HeaderProps) => {
   const handeLogOut = ()=>{
     console.log('LogOut Button Click');
     LoginActions.logOut();
+  }
+  const handleOnClick = ()=>{
+    console.log('handleOnClick');
+    onClick();
   }
   return (
     <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
@@ -34,6 +39,7 @@ const Header = ({classes , title,open, LoginActions} : HeaderProps) => {
         edge="start"
         color="inherit"
         aria-label="open drawer"
+        onClick= {()=>{handleOnClick();} }
         className={clsx(classes.menuButton, open && classes.menuButtonHidden)}
       >
         <MenuIcon />

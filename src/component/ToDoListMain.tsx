@@ -7,12 +7,15 @@ import TodoList, {Todos} from './TodoList';
 
 interface ToDoListMainProps  {
   todos : Array<Todos>
+  create: (todo : string ) => void;
+  deleted : (id : number)=>void;
+  checked : (id : number)=>void;
   };
   
-const ToDoListMain = ({todos} : ToDoListMainProps)=>{
+const ToDoListMain = ({todos,create,deleted,checked} : ToDoListMainProps)=>{
 
-  const handleClick = ()=>{
-
+  const handleClick = (todo : string)=>{
+    create(todo);
   }
   return (
 
@@ -31,6 +34,8 @@ const ToDoListMain = ({todos} : ToDoListMainProps)=>{
             </div>
           </div>
           <TodoList 
+          deleted = {deleted}
+          checked = {checked}
             todos={todos}
           />
           <br />

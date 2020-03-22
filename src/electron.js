@@ -4,7 +4,7 @@ const path = require('path');
 const jsonfile = require('jsonfile');
 const { ipcMain } = require('electron');
 const oracledb = require('oracledb');
-const produce = require('immer');
+const {produce} = require('immer');
 
 const dbconfigPath = path.join(__dirname, "/../config/dbconfig.json");
 const toDoListPath = path.join(__dirname, "/../config/todoList.json");
@@ -114,8 +114,84 @@ ipcMain.on("deleteDbConfig", (event, arg) => {
   event.returnValue = dbconfig.dbconfigList;
 });
 
+/* Db Config */
+
+/* To Do List */
+
+ipcMain.on("getTodoList", (event, arg) => {
+  let todoList = jsonfile.readFileSync(toDoListPath);
+  event.returnValue = todoList.todoList;
+});
+
+ipcMain.on("deleteTodoList", (event, arg) => {
+  let todoList = jsonfile.readFileSync(toDoListPath);
+
+  let newTodoList = [];
+
+  for (let i = 0; i < todoList.todoList.length; i++) {
+    if(arg.id !== todoList.todoList[i].id){
+      newTodoList.push(todoList.todoList[i]);
+    }
+  }
+  for (let i = 0; i < newTodoList.length; i++) {
+    newTodoList[i].id=i;
+  }
+  todoList.todoList = newTodoList;
+
+  jsonfile.writeFileSync(toDoListPath, todoList,{ spaces: 2, EOL: '\r\n' });
+  
+  event.returnValue = newTodoList;
+});
+
+ipcMain.on("checkedTodoList", (event, arg) => {
+  let todoList = jsonfile.readFileSync(toDoListPath);
+
+  let newTodoList = [];
+  
+  newTodoList = produce( todoList.todoList, draft =>{
+    for(let i =0; i<draft.length;i++){
+      if(arg.id===draft[i].id){
+        draft[i].checked = !draft[i].checked;
+      }
+    }
+  } )
+  todoList.todoList = newTodoList;
+
+  jsonfile.writeFileSync(toDoListPath, todoList,{ spaces: 2, EOL: '\r\n' });
+  
+  event.returnValue = newTodoList;
+});
+
+ipcMain.on("createTodoList", (event, arg) => {
+
+  let todoList = jsonfile.readFileSync(toDoListPath);
+
+  for (let i = 0; i < todoList.todoList.length; i++) {
+    todoList.todoList[i].id=i;
+  }
+
+  let idLength=todoList.todoList.length;
+
+  let newToDo = {
+    id : idLength,
+    task : arg.todo,
+    checked : false
+  }
+
+  todoList.todoList.push(newToDo);
+
+  jsonfile.writeFileSync(toDoListPath, todoList,{ spaces: 2, EOL: '\r\n' });
+
+  event.returnValue = todoList.todoList;
+});
+
+
+
+/* To Do List */
+
+
 /**
- * Db Connection Test
+ * Db
  *  */
 
 ipcMain.on("dbConnectTest", async (event,arg)=>{

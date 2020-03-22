@@ -30,15 +30,17 @@ interface TodoProps  {
 	id :  number;
 	todo : string;
 	checked : boolean;
+	handleDeleted : (id : number)=>void;
+	handleChecked : (id : number)=>void;
   };
   
-const Todo = ({id,todo,checked} : TodoProps)=>{
+const Todo = ({id,todo,checked,handleDeleted,handleChecked} : TodoProps)=>{
 
 	const handleCheck = (id : number) : void =>{
-		
+		handleChecked(id);
 	};
 	const handleRemove = (id : number) : void =>{
-
+		handleDeleted(id);
 	};
 	const classes = useStyles();
 	const listStyles = !checked ? classes.listElementStyles: classes.listElementCheckedStyles;
