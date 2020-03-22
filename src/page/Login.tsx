@@ -17,7 +17,7 @@ import CustomTextField from './../component/CustomTextField';
 
 import { connect } from 'react-redux';
 import { StoreState } from '../store/modules';
-import {actionCreators as LoginActions, DbconfigList} from '../store/modules/LogInOut';
+import {actionCreators as LoginActions, Dbconfig} from '../store/modules/LogInOut';
 import {bindActionCreators} from 'redux';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -50,7 +50,7 @@ interface LoginProps {
   dbpw:string;
   userid:string;
   userpw:string;
-  dbconfigList :DbconfigList[];
+  dbconfigList :Dbconfig[];
   dbConnectTest : boolean;
 }
 const Login = ( {LoginActions,name,host,dbid,dbpw,userid,userpw,dbconfigList,dbConnectTest} : LoginProps)=>{
@@ -70,6 +70,14 @@ const Login = ( {LoginActions,name,host,dbid,dbpw,userid,userpw,dbconfigList,dbC
   const handleDbConnectTest = () : void=>{
     console.log('handleDbConnectTest');
     LoginActions.connectTest();
+  }
+  const handleSaveDbconfig = () : void=>{
+    console.log('handleSaveDbconfig');
+    LoginActions.saveDbConfig();
+  }
+  const handleDeleteDbconfig = () : void=>{
+    console.log('handleDeleteDbconfig');
+    LoginActions.deletebConfig();
   }
   React.useEffect(()=>{
     return ()=>{
@@ -98,10 +106,10 @@ const Login = ( {LoginActions,name,host,dbid,dbpw,userid,userpw,dbconfigList,dbC
               <CustomButton  buttonName='Db Connect Test' className={classes.submit} handleClick={()=>{handleDbConnectTest();}}/>
             </Grid>
             <Grid item lg={6} md={6} sm={6} xs={6}>
-            <CustomButton  buttonName='Save' className={classes.submit} handleClick={()=>{console.log('button Click');}}/>
+            <CustomButton  buttonName='Save' className={classes.submit} handleClick={()=>{handleSaveDbconfig();}}/>
             </Grid>
             <Grid item lg={6} md={6} sm={6} xs={6}>
-            <CustomButton  buttonName='Delete' className={classes.submit} handleClick={()=>{console.log('button Click');}}/>
+            <CustomButton  buttonName='Delete' className={classes.submit} handleClick={()=>{handleDeleteDbconfig();}}/>
             </Grid>
             <Grid item lg={6} md={6} sm={6} xs={6}>
             <CustomButton  buttonName='Sign In' className={classes.submit} handleClick={()=>{handeLogin();}}/>

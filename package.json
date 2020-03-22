@@ -35,6 +35,7 @@
     "@types/react-dom": "^16.9.5",
     "@types/react-redux": "^7.1.7",
     "csstype": "^2.6.9",
+    "immer": "^6.0.2",
     "jsonfile": "^6.0.1",
     "material-table": "^1.57.2",
     "oracledb": "^4.2.0",

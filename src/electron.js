@@ -4,6 +4,7 @@ const path = require('path');
 const jsonfile = require('jsonfile');
 const { ipcMain } = require('electron');
 const oracledb = require('oracledb');
+const produce = require('immer');
 
 const dbconfigPath = path.join(__dirname, "/../config/dbconfig.json");
 const toDoListPath = path.join(__dirname, "/../config/todoList.json");
@@ -60,14 +61,11 @@ app.on('activate', function () {
 // code. You can also put them in separate files and require them here.
 
 
-let dbHost=null;
-let dbId=null;
-let dbPw=null;
 
 let dbconfig = {
-  user : dbId,
-  password : dbPw,
-  host: dbHost
+  user : null,
+  password : null,
+  host: null
 }
 
 /* Db Config */
@@ -76,17 +74,54 @@ ipcMain.on("getDbConfig", (event, arg) => {
   event.returnValue = dbconfig.dbconfigList;
 });
 
+ipcMain.on("saveDbConfig", (event, arg) => {
+
+  let dbconfig = jsonfile.readFileSync(dbconfigPath);
+
+  for (let i = 0; i < dbconfig.dbconfigList.length; i++) {
+    dbconfig.dbconfigList[i].id=i;
+  }
+
+  let idLength=dbconfig.dbconfigList.length;
+
+  let newconfig = Object.assign(arg, {id: idLength});
+
+  dbconfig.dbconfigList.push(newconfig);
+  // pretty json
+  jsonfile.writeFileSync(dbconfigPath, dbconfig,{ spaces: 2, EOL: '\r\n' });
+  //jsonfile.writeFileSync(dbconfigPath, dbconfig);
+  dbconfig = jsonfile.readFileSync(dbconfigPath);
+  event.returnValue = dbconfig.dbconfigList;
+});
+
+ipcMain.on("deleteDbConfig", (event, arg) => {
+  let dbconfig = jsonfile.readFileSync(dbconfigPath);
+
+  let newDbconfigList = [];
+
+  for (let i = 0; i < dbconfig.dbconfigList.length; i++) {
+    if(arg != dbconfig.dbconfigList[i].id){
+      newDbconfigList.push(dbconfig.dbconfigList[i]);
+    }
+  }
+  for (let i = 0; i < newDbconfigList.length; i++) {
+    newDbconfigList[i].id=i;
+  }
+  dbconfig.dbconfigList = newDbconfigList;
+
+  jsonfile.writeFileSync(dbconfigPath, dbconfig,{ spaces: 2, EOL: '\r\n' });
+  
+  event.returnValue = dbconfig.dbconfigList;
+});
 
 /**
  * Db Connection Test
  *  */
 
 ipcMain.on("dbConnectTest", async (event,arg)=>{
-  const dbconfig = {
-    user: 'SCOTT',
-    password: '1234',
-    host: 'localhost:1521/orcl'
-  };
+  dbconfig.user =arg.dbid;
+  dbconfig.password = arg.dbpw;
+  dbconfig.host = arg.host;
   let connection;
   try{
     connection = await oracledb.getConnection(dbconfig);
@@ -110,3 +145,4 @@ ipcMain.on("dbConnectTest", async (event,arg)=>{
     event.returnValue = false;
   }
 });
+

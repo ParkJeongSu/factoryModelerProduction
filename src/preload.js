@@ -18,6 +18,14 @@ const { ipcRenderer } = require('electron');
 window.getDbConfig = function () {
   return ipcRenderer.sendSync('getDbConfig');
 }
+window.saveDbConfig = function (action) {
+  return ipcRenderer.sendSync('saveDbConfig',action);
+}
+window.deleteDbConfig = function (action) {
+  return ipcRenderer.sendSync('deleteDbConfig',action);
+}
+/* Db Config */
+
 
 window.dbConnectTest = function (action) {
   return ipcRenderer.sendSync('dbConnectTest',action);

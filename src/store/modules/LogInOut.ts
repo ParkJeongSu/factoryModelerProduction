@@ -1,4 +1,6 @@
-﻿export interface DbconfigList{
+﻿
+
+export interface Dbconfig{
   id : number;
   name : string;
   host : string;
@@ -8,7 +10,7 @@
   userpw : string;
 }
 export interface LogInOutState {
-  dbconfigList : DbconfigList[];
+  dbconfigList : Dbconfig[];
   dbConnectTest?: boolean;
   isLogined: boolean;
   id?: number;
@@ -19,6 +21,8 @@ export interface LogInOutState {
   userid? : string;
   userpw? : string;
 }
+
+import produce from 'immer';
 
 // 액션 타입 정의
 const LOGIN = 'LogInOut/LOGIN';
@@ -32,7 +36,19 @@ const CONNECTTEST = 'LogInOut/CONNECTTEST';
 const SAVEDBCONFIG = 'LogInOut/SAVEDBCONFIG';
 const DELETEDBCONFIG = 'LogInOut/DELETEDBCONFIG';
 
+interface DeleteDbConfigAction {
+  type : typeof DELETEDBCONFIG;
+  payload : {
+    id : number;
+  }
+}
 
+interface SaveDbConfigAction {
+  type : typeof SAVEDBCONFIG;
+  payload : {
+    dbconfig : Dbconfig;
+  }
+}
 
 interface LogInAction {
   type : typeof LOGIN;
@@ -46,7 +62,7 @@ interface LogOutAction {
     isLogin : boolean;
   }
 }
-interface ChangeInputValue {
+interface ChangeInputValueAction {
   type : typeof CHANGEINPUTVALUE;
   payload : {
     name : string;
@@ -54,20 +70,32 @@ interface ChangeInputValue {
   }
 }
 
-interface SelectedDbConfig {
+interface SelectedDbConfigAction {
   type : typeof SELECTEDDBCONFIG;
   payload : {
     id? : number;
   }
 }
-interface ConnectTest {
+interface ConnectTestAction {
   type : typeof CONNECTTEST;
   payload : {
     dbConnectTest : boolean;
   }
 }
 
-export type LogInActionTypes = LogInAction|LogOutAction|ChangeInputValue|SelectedDbConfig|ConnectTest;
+export type LogInActionTypes = LogInAction|LogOutAction|ChangeInputValueAction|SelectedDbConfigAction|ConnectTestAction|SaveDbConfigAction|DeleteDbConfigAction;
+
+function deletebConfig (){
+  return {
+    type : DELETEDBCONFIG
+  }
+}
+
+function saveDbConfig (){
+  return {
+    type : SAVEDBCONFIG
+  }
+}
 
 function connectTest (){
   return {
@@ -113,13 +141,13 @@ function logOut (){
 }
 
 export const actionCreators = {
-  logIn,logOut,changeInputValue,selectedDbConfig,connectTest
+  logIn,logOut,changeInputValue,selectedDbConfig,connectTest,saveDbConfig,deletebConfig
 };
 
-const initDbconifg= () : DbconfigList[] =>{
-  let initDbconifgList : DbconfigList[] =[];
+const initDbconifg= () : Dbconfig[] =>{
+  let initDbconifgList : Dbconfig[] =[];
   try {
-    initDbconifgList = (window as any).getDbConfig()
+    initDbconifgList = (window as any).getDbConfig();
   } catch (error) {
     console.log('error : ',error );
   }
@@ -144,10 +172,54 @@ const initialState : LogInOutState = {
 export default function LogInOut(state = initialState, action : LogInActionTypes) {
   CONNECTTEST
   switch (action.type) {
+    case DELETEDBCONFIG:
+      try {
+        let dbconfigList :Array<Dbconfig> = state.dbconfigList;
+        if(null !== state.id){
+          dbconfigList = (window as any).deleteDbConfig(state.id);
+        }
+        return produce(state, draft => {
+          draft.dbconfigList = dbconfigList;
+          draft.id=null;
+          draft.name=null;
+          draft.host=null;
+          draft.dbid=null;
+          draft.dbpw=null;
+          draft.userid=null;
+          draft.userpw=null;
+        }); 
+      } catch (error) {
+        console.log('error : ',error);
+        return {
+          ...state
+        };
+      }
+    case SAVEDBCONFIG:
+      try {
+        let newDbconfig : Dbconfig =  Object.assign({},{
+          id:state.id,
+          name : state.name,
+          host : state.host,
+          dbid : state.dbid,
+          dbpw : state.dbpw,
+          userid : state.userid,
+          userpw : state.userpw
+        });
+        let dbconfigList :Array<Dbconfig>;
+        dbconfigList = (window as any).saveDbConfig(newDbconfig);
+        return produce(state, draft => {
+          draft.dbconfigList = dbconfigList;
+        }); 
+      } catch (error) {
+        return {
+          ...state
+        }
+      }
     case CONNECTTEST:
       let connectResult=null;
+      let dbconfig = {host : state.host, dbid : state.dbid, dbpw : state.dbpw};
       try {
-        connectResult = (window as any).dbConnectTest()
+        connectResult = (window as any).dbConnectTest(dbconfig);
       } catch (error) {
         connectResult=false;
         console.log(error);
