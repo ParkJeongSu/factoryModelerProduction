@@ -23,14 +23,7 @@ export interface LogInOutState {
 // 액션 타입 정의
 const LOGIN = 'LogInOut/LOGIN';
 const LOGOUT = 'LogInOut/LOGOUT';
-
-const CHANGEID = 'LogInOut/CHANGEID';
-const CHANGENAME = 'LogInOut/CHANGENAME';
-const CHANGEHOST = 'LogInOut/CHANGEHOST';
-const CHANGEDBID = 'LogInOut/CHANGEDBID';
-const CHANGEDBPW = 'LogInOut/CHANGEDBPW';
-const CHANGEUSERID = 'LogInOut/CHANGEUSERID';
-const CHANGEUSERPW = 'LogInOut/CHANGEUSERPW';
+const CHANGEINPUTVALUE = 'LogInOut/CHANGEINPUTVALUE';
 
 const SELECTEDDBCONFIG = 'LogInOut/SELECTEDDBCONFIG';
 const SAVEDBCONFIG = 'LogInOut/SAVEDBCONFIG';
@@ -44,8 +37,32 @@ interface LogInAction {
     isLogin : boolean;
   }
 }
+interface LogOutAction {
+  type : typeof LOGOUT;
+  payload : {
+    isLogin : boolean;
+  }
+}
+interface ChangeInputValue {
+  type : typeof CHANGEINPUTVALUE;
+  payload : {
+    name : string;
+    value :string;
+  }
+}
 
-export type LogInActionTypes = LogInAction;
+
+export type LogInActionTypes = LogInAction|LogOutAction|ChangeInputValue;
+
+function changeInputValue (name:string,value:string){
+  return {
+    type : CHANGEINPUTVALUE,
+    payload : {
+      name : name,
+      value : value
+    }
+  }
+}
 
 function logIn (){
   return {
@@ -55,9 +72,17 @@ function logIn (){
     }
   }
 }
+function logOut (){
+  return {
+    type : LOGIN,
+    payload : {
+      isLogin : false
+    }
+  }
+}
 
 export const actionCreators = {
-  logIn
+  logIn,logOut,changeInputValue
 };
 
 // **** 초기상태 정의
@@ -77,11 +102,21 @@ const initialState : LogInOutState = {
 // **** 리듀서 작성
 export default function LogInOut(state = initialState, action : LogInActionTypes) {
   switch (action.type) {
-    case LOGIN:
-      return {
-        ...state,
-        isLogined: !state.isLogined
-      };
+      case LOGIN:
+        return {
+          ...state,
+          isLogined: action.payload.isLogin
+        };
+      case LOGOUT:
+        return {
+          ...state,
+          isLogined: action.payload.isLogin
+        };
+      case CHANGEINPUTVALUE:
+        return {
+          ...state,
+          [action.payload.name] : action.payload.value
+        };
     default:
       return state;
   }

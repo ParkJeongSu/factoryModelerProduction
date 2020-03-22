@@ -44,12 +44,22 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface LoginProps {
   LoginActions: typeof LoginActions;
+  name : string;
+  host:string;
+  dbid:string;
+  dbpw:string;
+  userid:string;
+  userpw:string;
 }
-const Login = ( {LoginActions} : LoginProps)=>{
+const Login = ( {LoginActions,name,host,dbid,dbpw,userid,userpw} : LoginProps)=>{
   const classes = useStyles();
   const handeLogin = ()=>{
     console.log('Login Button Click');
     LoginActions.logIn();
+  }
+  const hanedleChangeInputValue = (name : string,value:string)=>{
+    console.log('hanedleChangeInputValue');
+    LoginActions.changeInputValue(name,value);
   }
   React.useEffect(()=>{
     return ()=>{
@@ -66,13 +76,13 @@ const Login = ( {LoginActions} : LoginProps)=>{
           Sign in
         </Typography>
         <form className={classes.form} noValidate>
-          <CustomAutocomplete data={[]}/>
-          <CustomTextField name= 'host' label= 'host' value='1'/>
-          <CustomTextField name= 'dbid' label= 'dbid' value='1'/>
-          <CustomTextField name= 'dbpw' label= 'dbpw' value='1' type='password'/>
+          <CustomAutocomplete name='name'  onChange={hanedleChangeInputValue} data={[]}  value={name} />
+          <CustomTextField name= 'host' onChange={hanedleChangeInputValue} label= 'host' value={host}/>
+          <CustomTextField name= 'dbid' onChange={hanedleChangeInputValue} label= 'dbid' value={dbid}/>
+          <CustomTextField name= 'dbpw' onChange={hanedleChangeInputValue} label= 'dbpw' value={dbpw} type='password'/>
           <CustomAlert/>
-          <CustomTextField name= 'userid' label= 'userid' value='1'/>
-          <CustomTextField name= 'userpw' label= 'userpw' value='1' type='password'/>
+          <CustomTextField name= 'userid' onChange={hanedleChangeInputValue} label= 'userid' value={userid}/>
+          <CustomTextField name= 'userpw' onChange={hanedleChangeInputValue} label= 'userpw' value={userpw} type='password'/>
           <Grid container spacing={2}>
             <Grid item lg={6} md={6} sm={6} xs={6}>
               <CustomButton  buttonName='Db Connect Test' className={classes.submit} handleClick={()=>{console.log('button Click');}}/>
@@ -97,7 +107,12 @@ const Login = ( {LoginActions} : LoginProps)=>{
 }
 
 const mapStateToProps = ({ LogInOut } : StoreState) => ({
-  
+  name : LogInOut.name,
+  host:LogInOut.host,
+  dbid:LogInOut.dbid,
+  dbpw:LogInOut.dbpw,
+  userid:LogInOut.userid,
+  userpw:LogInOut.userpw,
 });
 
 const mapDispatchToProps = (dispatch : any) => ({

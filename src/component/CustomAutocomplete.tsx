@@ -9,10 +9,13 @@ interface dataList  {
 }
 
 interface CustomAutocompleteProps  {
+  name : string
+  value? : string;
   data : dataList[];
+  onChange : (name : string,value:string) => void;
 };
 
-const CustomAutocomplete = ( {data}  : CustomAutocompleteProps ) => {
+const CustomAutocomplete = ( {name,value,data,onChange}  : CustomAutocompleteProps ) => {
     React.useEffect(()=>{
         return ()=>{
             console.log('CustomAutocomplete unMount 실행');
@@ -26,10 +29,13 @@ const CustomAutocomplete = ( {data}  : CustomAutocompleteProps ) => {
     renderInput={params => {
       return (
         <TextField
+          name={name} 
           {...params}
           label="DB Connect Info"
           fullWidth
           variant="outlined"
+          value={value===null?'':value}
+          onChange={(e)=>{onChange(e.target.name,e.target.value);}}
         />
       );
     }}

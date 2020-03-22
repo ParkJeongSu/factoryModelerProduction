@@ -6,15 +6,19 @@ interface AppProps {
   name : string;
   type? : string;
   label : string;
-  value : string;
+  value? : string;
+  onChange : (name : string,value:string) => void;
 };
 
-const CustomTextField = ( {name,label,value,type}  : AppProps ) => {
+const CustomTextField = ( {name,label,value,type,onChange}  : AppProps ) => {
     React.useEffect(()=>{
         return ()=>{
             console.log('CustomTextField unMount 실행');
         };
     });
+    const handleOnChane = (name : string,value :string)=>{
+      onChange(name,value);
+    }
   return (
     <TextField
         variant="outlined"
@@ -23,8 +27,9 @@ const CustomTextField = ( {name,label,value,type}  : AppProps ) => {
         fullWidth
         name={name}
         label={label}
-        value={value}
+        value={value===null ? '': value}
         type={type}
+        onChange={(e)=>{handleOnChane(e.target.name,e.target.value);}}
       >
       </TextField>
   );

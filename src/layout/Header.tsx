@@ -25,7 +25,7 @@ interface HeaderProps  {
 const Header = ({classes , title,open, LoginActions} : HeaderProps) => {
   const handeLogOut = ()=>{
     console.log('LogOut Button Click');
-    LoginActions.logIn();
+    LoginActions.logOut();
   }
   return (
     <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
