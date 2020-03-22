@@ -95,7 +95,10 @@ const useStyles = makeStyles((theme: Theme) =>
 const  Main = ()=> {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
-  // props.readSidebar();
+  React.useEffect(()=>{
+    return ()=>{
+        console.log('Main unMount 실행');
+    };});
   const handleDrawerOpen = () => {
     setOpen(true);
   };

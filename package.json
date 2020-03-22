@@ -33,10 +33,11 @@
     "@material-ui/styles": "^4.9.0",
     "@types/react": "^16.9.23",
     "@types/react-dom": "^16.9.5",
+    "@types/react-redux": "^7.1.7",
     "csstype": "^2.6.9",
     "jsonfile": "^6.0.1",
     "material-table": "^1.57.2",
-    "oracledb": "^4.2.0",
+    "oracledb": "github:oracle/node-oracledb#v4.2.0",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
     "react-redux": "^7.2.0",
@@ -74,5 +75,10 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
     }
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": ">=10.19.0",
+    "npm": ">=6.13.4"
   }
 }

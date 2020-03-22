@@ -10,13 +10,23 @@ import HomeIcon from '@material-ui/icons/Home';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import clsx from 'clsx';
 
+import { connect } from 'react-redux';
+import { StoreState } from '../store/modules';
+import {actionCreators as LoginActions} from '../store/modules/LogInOut';
+import {bindActionCreators} from 'redux';
+
 interface HeaderProps  {
   classes : any;
   title : string;
   open :boolean;
+  LoginActions: typeof LoginActions;
   };
   
-const Header = ({classes , title,open} : HeaderProps) => {
+const Header = ({classes , title,open, LoginActions} : HeaderProps) => {
+  const handeLogOut = ()=>{
+    console.log('LogOut Button Click');
+    LoginActions.logIn();
+  }
   return (
     <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
     <Toolbar className={classes.toolbar}>
@@ -31,10 +41,10 @@ const Header = ({classes , title,open} : HeaderProps) => {
       <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
         {title}
       </Typography>
-      <IconButton color="inherit">
+      <IconButton color="inherit" >
         <HomeIcon/>
       </IconButton>
-      <IconButton color="inherit" >
+      <IconButton color="inherit"  onClick = {()=>{ handeLogOut(); }}  >
         <ExitToAppIcon/>
       </IconButton>
     </Toolbar>
@@ -42,6 +52,13 @@ const Header = ({classes , title,open} : HeaderProps) => {
   );
 }
 
+const mapStateToProps = ({ LogInOut } : StoreState) => ({
+  
+});
 
+const mapDispatchToProps = (dispatch : any) => ({
+  LoginActions : bindActionCreators(LoginActions,dispatch)
+});
 
-export default Header;
+export default connect(mapStateToProps,mapDispatchToProps)(Header);
+

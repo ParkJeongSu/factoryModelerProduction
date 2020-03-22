@@ -15,6 +15,11 @@ import CustomButton from './../component/CustomButton';
 import CustomTextField from './../component/CustomTextField';
 
 
+import { connect } from 'react-redux';
+import { StoreState } from '../store/modules';
+import {actionCreators as LoginActions} from '../store/modules/LogInOut';
+import {bindActionCreators} from 'redux';
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     paper: {
@@ -37,9 +42,19 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-
-const Login = ()=>{
+interface LoginProps {
+  LoginActions: typeof LoginActions;
+}
+const Login = ( {LoginActions} : LoginProps)=>{
   const classes = useStyles();
+  const handeLogin = ()=>{
+    console.log('Login Button Click');
+    LoginActions.logIn();
+  }
+  React.useEffect(()=>{
+    return ()=>{
+        console.log('Login unMount 실행');
+    };});
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -69,7 +84,7 @@ const Login = ()=>{
             <CustomButton  buttonName='Delete' className={classes.submit} handleClick={()=>{console.log('button Click');}}/>
             </Grid>
             <Grid item lg={6} md={6} sm={6} xs={6}>
-            <CustomButton  buttonName='Sign In' className={classes.submit} handleClick={()=>{console.log('button Click');}}/>
+            <CustomButton  buttonName='Sign In' className={classes.submit} handleClick={()=>{handeLogin();}}/>
             </Grid>
           </Grid>
         </form>
@@ -81,4 +96,12 @@ const Login = ()=>{
   );
 }
 
-export default Login;
+const mapStateToProps = ({ LogInOut } : StoreState) => ({
+  
+});
+
+const mapDispatchToProps = (dispatch : any) => ({
+  LoginActions : bindActionCreators(LoginActions,dispatch)
+});
+
+export default connect(mapStateToProps,mapDispatchToProps)(Login);

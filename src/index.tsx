@@ -2,5 +2,14 @@
 import * as ReactDOM from 'react-dom';
 import App from './App';
 
-ReactDOM.render( <App/> , document.getElementById('root'));
+import { Provider } from "react-redux";
+import configStore from './store/store';
+
+const store = configStore();
+
+ReactDOM.render( 
+    <Provider store={store}>
+        <App/>
+    </Provider>
+ , document.getElementById('root'));
 
