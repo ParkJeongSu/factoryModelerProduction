@@ -58,3 +58,55 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+
+let dbHost=null;
+let dbId=null;
+let dbPw=null;
+
+let dbconfig = {
+  user : dbId,
+  password : dbPw,
+  host: dbHost
+}
+
+/* Db Config */
+ipcMain.on("getDbConfig", (event, arg) => {
+  let dbconfig = jsonfile.readFileSync(dbconfigPath);
+  event.returnValue = dbconfig.dbconfigList;
+});
+
+
+/**
+ * Db Connection Test
+ *  */
+
+ipcMain.on("dbConnectTest", async (event,arg)=>{
+  const dbconfig = {
+    user: 'SCOTT',
+    password: '1234',
+    host: 'localhost:1521/orcl'
+  };
+  let connection;
+  try{
+    connection = await oracledb.getConnection(dbconfig);
+  }
+  catch(err){
+    console.error(err);
+  }
+  finally{
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+  if(connection!==undefined){
+    event.returnValue = true;
+  }
+  else{
+    event.returnValue = false;
+  }
+});

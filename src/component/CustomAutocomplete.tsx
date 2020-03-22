@@ -13,9 +13,10 @@ interface CustomAutocompleteProps  {
   value? : string;
   data : dataList[];
   onChange : (name : string,value:string) => void;
+  onSelected : (id : number) => void;
 };
 
-const CustomAutocomplete = ( {name,value,data,onChange}  : CustomAutocompleteProps ) => {
+const CustomAutocomplete = ( {name,value,data,onChange,onSelected}  : CustomAutocompleteProps ) => {
     React.useEffect(()=>{
         return ()=>{
             console.log('CustomAutocomplete unMount 실행');
@@ -24,6 +25,30 @@ const CustomAutocomplete = ( {name,value,data,onChange}  : CustomAutocompletePro
   return (
     <Autocomplete
     options={data}
+    onChange = {
+      (e :any,value : any) : void=>{
+        if(null === value){
+          onSelected(null);
+        }
+        else{
+          try {
+            onSelected(value.id);  
+          } catch (error) {
+           console.log('error : ' ,error); 
+          }
+        }
+
+      }}
+
+    onInputChange = {
+      (e : any,value : any,reason : any) :void => {
+        if("clear"==reason){
+          onSelected(null);
+        }
+        else{
+          onChange(name,e.target.value);
+        }
+    }}
     freeSolo
     getOptionLabel={option => option.name}
     renderInput={params => {
@@ -35,7 +60,6 @@ const CustomAutocomplete = ( {name,value,data,onChange}  : CustomAutocompletePro
           fullWidth
           variant="outlined"
           value={value===null?'':value}
-          onChange={(e)=>{onChange(e.target.name,e.target.value);}}
         />
       );
     }}

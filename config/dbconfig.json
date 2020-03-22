@@ -7,48 +7,7 @@
       "dbid": "SCOTT",
       "dbpw": "1234",
       "userid": "TEST",
-      "userpw": "TEST",
-      "dbConnectTest": true
-    },
-    {
-      "id": 1,
-      "name": "",
-      "host": "",
-      "dbid": "",
-      "dbpw": "",
-      "userid": "",
-      "userpw": "",
-      "dbConnectTest": null
-    },
-    {
-      "id": 2,
-      "name": "",
-      "host": "",
-      "dbid": "",
-      "dbpw": "",
-      "userid": "",
-      "userpw": "",
-      "dbConnectTest": null
-    },
-    {
-      "id": 3,
-      "name": "",
-      "host": "",
-      "dbid": "",
-      "dbpw": "",
-      "userid": "",
-      "userpw": "",
-      "dbConnectTest": null
-    },
-    {
-      "id": 4,
-      "name": "",
-      "host": "",
-      "dbid": "",
-      "dbpw": "",
-      "userid": "",
-      "userpw": "",
-      "dbConnectTest": null
+      "userpw": "TEST"
     }
   ]
 }

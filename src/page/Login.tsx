@@ -17,7 +17,7 @@ import CustomTextField from './../component/CustomTextField';
 
 import { connect } from 'react-redux';
 import { StoreState } from '../store/modules';
-import {actionCreators as LoginActions} from '../store/modules/LogInOut';
+import {actionCreators as LoginActions, DbconfigList} from '../store/modules/LogInOut';
 import {bindActionCreators} from 'redux';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -50,8 +50,10 @@ interface LoginProps {
   dbpw:string;
   userid:string;
   userpw:string;
+  dbconfigList :DbconfigList[];
+  dbConnectTest : boolean;
 }
-const Login = ( {LoginActions,name,host,dbid,dbpw,userid,userpw} : LoginProps)=>{
+const Login = ( {LoginActions,name,host,dbid,dbpw,userid,userpw,dbconfigList,dbConnectTest} : LoginProps)=>{
   const classes = useStyles();
   const handeLogin = ()=>{
     console.log('Login Button Click');
@@ -60,6 +62,14 @@ const Login = ( {LoginActions,name,host,dbid,dbpw,userid,userpw} : LoginProps)=>
   const hanedleChangeInputValue = (name : string,value:string)=>{
     console.log('hanedleChangeInputValue');
     LoginActions.changeInputValue(name,value);
+  }
+  const handleOnSelected = ( id? : number ) : void=>{
+    console.log('handleOnSelected');
+    LoginActions.selectedDbConfig(id);
+  }
+  const handleDbConnectTest = () : void=>{
+    console.log('handleDbConnectTest');
+    LoginActions.connectTest();
   }
   React.useEffect(()=>{
     return ()=>{
@@ -76,16 +86,16 @@ const Login = ( {LoginActions,name,host,dbid,dbpw,userid,userpw} : LoginProps)=>
           Sign in
         </Typography>
         <form className={classes.form} noValidate>
-          <CustomAutocomplete name='name'  onChange={hanedleChangeInputValue} data={[]}  value={name} />
+          <CustomAutocomplete name='name'  onChange={hanedleChangeInputValue} data={dbconfigList} onSelected={handleOnSelected}  value={name} />
           <CustomTextField name= 'host' onChange={hanedleChangeInputValue} label= 'host' value={host}/>
           <CustomTextField name= 'dbid' onChange={hanedleChangeInputValue} label= 'dbid' value={dbid}/>
           <CustomTextField name= 'dbpw' onChange={hanedleChangeInputValue} label= 'dbpw' value={dbpw} type='password'/>
-          <CustomAlert/>
+          <CustomAlert result = {dbConnectTest}/>
           <CustomTextField name= 'userid' onChange={hanedleChangeInputValue} label= 'userid' value={userid}/>
           <CustomTextField name= 'userpw' onChange={hanedleChangeInputValue} label= 'userpw' value={userpw} type='password'/>
           <Grid container spacing={2}>
             <Grid item lg={6} md={6} sm={6} xs={6}>
-              <CustomButton  buttonName='Db Connect Test' className={classes.submit} handleClick={()=>{console.log('button Click');}}/>
+              <CustomButton  buttonName='Db Connect Test' className={classes.submit} handleClick={()=>{handleDbConnectTest();}}/>
             </Grid>
             <Grid item lg={6} md={6} sm={6} xs={6}>
             <CustomButton  buttonName='Save' className={classes.submit} handleClick={()=>{console.log('button Click');}}/>
@@ -107,12 +117,14 @@ const Login = ( {LoginActions,name,host,dbid,dbpw,userid,userpw} : LoginProps)=>
 }
 
 const mapStateToProps = ({ LogInOut } : StoreState) => ({
+  dbconfigList : LogInOut.dbconfigList,
   name : LogInOut.name,
   host:LogInOut.host,
   dbid:LogInOut.dbid,
   dbpw:LogInOut.dbpw,
   userid:LogInOut.userid,
   userpw:LogInOut.userpw,
+  dbConnectTest : LogInOut.dbConnectTest
 });
 
 const mapDispatchToProps = (dispatch : any) => ({

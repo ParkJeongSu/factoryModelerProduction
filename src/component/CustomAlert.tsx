@@ -16,17 +16,17 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-interface AppProps  {
-  result? : string;
+interface CustomAlertProps  {
+  result? : boolean;
 };
 
 
-const returnAlert = (result : string) :  React.ReactElement =>
+const returnAlert = (result : boolean) :  React.ReactElement =>
 {
-  if( undefined === result ){
+  if( null === result ){
     return;
   }
-  else if("success"===result){
+  else if(true=== result){
     return <Alert severity="success">DB Connection success</Alert>;
   }
   else{
@@ -34,7 +34,7 @@ const returnAlert = (result : string) :  React.ReactElement =>
   }
 }
 
-const CustomAlert = ( {result}  : AppProps ) => {
+const CustomAlert = ( {result}  : CustomAlertProps ) => {
   const classes = useStyles();
     React.useEffect(()=>{
         return ()=>{

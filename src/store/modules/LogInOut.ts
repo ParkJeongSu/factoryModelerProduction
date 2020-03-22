@@ -26,10 +26,13 @@ const LOGOUT = 'LogInOut/LOGOUT';
 const CHANGEINPUTVALUE = 'LogInOut/CHANGEINPUTVALUE';
 
 const SELECTEDDBCONFIG = 'LogInOut/SELECTEDDBCONFIG';
+const CONNECTTEST = 'LogInOut/CONNECTTEST';
+
+
 const SAVEDBCONFIG = 'LogInOut/SAVEDBCONFIG';
 const DELETEDBCONFIG = 'LogInOut/DELETEDBCONFIG';
 
-const CONNECTTEST = 'LogInOut/CONNECTTEST';
+
 
 interface LogInAction {
   type : typeof LOGIN;
@@ -51,8 +54,36 @@ interface ChangeInputValue {
   }
 }
 
+interface SelectedDbConfig {
+  type : typeof SELECTEDDBCONFIG;
+  payload : {
+    id? : number;
+  }
+}
+interface ConnectTest {
+  type : typeof CONNECTTEST;
+  payload : {
+    dbConnectTest : boolean;
+  }
+}
 
-export type LogInActionTypes = LogInAction|LogOutAction|ChangeInputValue;
+export type LogInActionTypes = LogInAction|LogOutAction|ChangeInputValue|SelectedDbConfig|ConnectTest;
+
+function connectTest (){
+  return {
+    type : CONNECTTEST
+  }
+}
+
+function selectedDbConfig (id? : number){
+  return {
+    type : SELECTEDDBCONFIG,
+    payload : {
+      id : id
+    }
+  }
+}
+
 
 function changeInputValue (name:string,value:string){
   return {
@@ -82,12 +113,22 @@ function logOut (){
 }
 
 export const actionCreators = {
-  logIn,logOut,changeInputValue
+  logIn,logOut,changeInputValue,selectedDbConfig,connectTest
 };
+
+const initDbconifg= () : DbconfigList[] =>{
+  let initDbconifgList : DbconfigList[] =[];
+  try {
+    initDbconifgList = (window as any).getDbConfig()
+  } catch (error) {
+    console.log('error : ',error );
+  }
+  return initDbconifgList;
+}
 
 // **** 초기상태 정의
 const initialState : LogInOutState = {
-    dbconfigList : [],    
+    dbconfigList : initDbconifg(),    
     isLogined: false,
     id: null,
     name:null,
@@ -101,7 +142,46 @@ const initialState : LogInOutState = {
 
 // **** 리듀서 작성
 export default function LogInOut(state = initialState, action : LogInActionTypes) {
+  CONNECTTEST
   switch (action.type) {
+    case CONNECTTEST:
+      let connectResult=null;
+      try {
+        connectResult = (window as any).dbConnectTest()
+      } catch (error) {
+        connectResult=false;
+        console.log(error);
+      }
+      return {
+        ...state,
+        dbConnectTest: connectResult
+      };
+      case SELECTEDDBCONFIG:
+        if(action.payload.id===null){
+          return {
+            ...state,
+            id : null,
+            name : null,
+            host : null,
+            dbid : null,
+            dbpw : null,
+            userid : null,
+            userpw : null,
+            dbConnectTest : null
+          };
+        }else{
+          return {
+            ...state,
+            id : state.dbconfigList[action.payload.id].id,
+            name : state.dbconfigList[action.payload.id].name,
+            host : state.dbconfigList[action.payload.id].host,
+            dbid : state.dbconfigList[action.payload.id].dbid,
+            dbpw : state.dbconfigList[action.payload.id].dbpw,
+            userid : state.dbconfigList[action.payload.id].userid,
+            userpw : state.dbconfigList[action.payload.id].userpw,
+            dbConnectTest : null
+          };
+        }
       case LOGIN:
         return {
           ...state,

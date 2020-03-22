@@ -13,3 +13,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
 
 const { ipcRenderer } = require('electron');
+
+/* Db Config */
+window.getDbConfig = function () {
+  return ipcRenderer.sendSync('getDbConfig');
+}
+
+window.dbConnectTest = function (action) {
+  return ipcRenderer.sendSync('dbConnectTest',action);
+}
