@@ -54,6 +54,9 @@ interface LoginProps {
   dbConnectTest : boolean;
 }
 const Login = ( {LoginActions,name,host,dbid,dbpw,userid,userpw,dbconfigList,dbConnectTest} : LoginProps)=>{
+  React.useEffect(()=>{
+    LoginActions.readDbConfig();
+  },[]);
   const classes = useStyles();
   const handeLogin = ()=>{
     console.log('Login Button Click');
@@ -77,7 +80,7 @@ const Login = ( {LoginActions,name,host,dbid,dbpw,userid,userpw,dbconfigList,dbC
   }
   const handleDeleteDbconfig = () : void=>{
     console.log('handleDeleteDbconfig');
-    LoginActions.deletebConfig();
+    LoginActions.deleteDbConfig();
   }
   React.useEffect(()=>{
     return ()=>{

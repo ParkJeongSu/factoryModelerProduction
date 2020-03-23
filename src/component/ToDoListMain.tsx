@@ -10,10 +10,17 @@ interface ToDoListMainProps  {
   create: (todo : string ) => void;
   deleted : (id : number)=>void;
   checked : (id : number)=>void;
+  read : ()=>void;
   };
   
-const ToDoListMain = ({todos,create,deleted,checked} : ToDoListMainProps)=>{
-
+const ToDoListMain = ({todos,create,deleted,checked,read} : ToDoListMainProps)=>{
+  React.useEffect(()=>{
+    console.log('ToDoListMain Mount 실행');
+    read();
+    return ()=>{
+      console.log('ToDoListMain UnMount 실행');
+    }
+  },[])
   const handleClick = (todo : string)=>{
     create(todo);
   }

@@ -106,17 +106,20 @@ const  Main = ({ToDoActions,todoList} : MainProps)=> {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   React.useEffect(()=>{
+      console.log('Main Mount 실행');
     return ()=>{
         console.log('Main unMount 실행');
     };});
-
-    const handlCreateTodo= (todo : string)=>{
+    const handelReadTodoList = () : void =>{
+      ToDoActions.readTodoList();
+    }
+    const handlCreateTodo= (todo : string) :void =>{
       ToDoActions.createTodoList(todo);
     }
-    const handleDeleteTodo = (id : number)=>{
+    const handleDeleteTodo = (id : number) : void =>{
       ToDoActions.deleteTodoList(id);
     }
-    const handleCheckedTodo = (id : number)=>{
+    const handleCheckedTodo = (id : number) : void =>{
       ToDoActions.checkedTodoList(id);
     }
   const handleDrawerOpen = () => {
@@ -130,7 +133,7 @@ const  Main = ({ToDoActions,todoList} : MainProps)=> {
         <CssBaseline />
         <Header classes={classes} open={open} onClick={handleDrawerOpen} title='Sample'/>
         <Sidebar classes={classes} open ={open} onClick={handleDrawerClose} />
-        <Content classes={classes} todoList = {todoList} create={handlCreateTodo} checked={handleCheckedTodo} deleted = {handleDeleteTodo} />
+        <Content classes={classes} todoList = {todoList} read = {handelReadTodoList} create={handlCreateTodo} checked={handleCheckedTodo} deleted = {handleDeleteTodo} />
       </div>
     );
   }

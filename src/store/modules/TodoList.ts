@@ -72,19 +72,9 @@ export const actionCreators = {
   readTodoList,createTodoList,deleteTodoList,checkedTodoList
 };
 
-const initTodoList= () : Todo[] =>{
-  let initTodoList : Todo[] =[];
-  try {
-    initTodoList = (window as any).getTodoList();
-  } catch (error) {
-    console.log('error : ',error );
-  }
-  return initTodoList;
-}
-
 // **** 초기상태 정의
 const initialState : TodoListState = {
-    todoList : initTodoList()
+    todoList : []
   };
 
 // **** 리듀서 작성
@@ -92,12 +82,17 @@ export default function TodoList(state = initialState, action :TodoListActionTyp
   let todoList : Todo[] = [];
   switch (action.type) {
     case READ:
-      return state.todoList;
+      try {
+        todoList = (window as any).getTodoList();  
+      } catch (error) {
+        console.log('error : ',error);
+      }
+      return produce( state, draft =>{ draft.todoList = todoList });
     case CREATE:
       try {
         todoList = (window as any).createTodoList(action);
       } catch (error) {
-        console.log('error : ',error)
+        console.log('error : ',error);
       }
       return produce( state, draft =>{ draft.todoList = todoList });
     case DELETE:

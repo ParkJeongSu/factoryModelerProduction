@@ -16,9 +16,10 @@ interface ContentProps  {
   create: (todo : string ) => void;
   deleted : (id : number)=>void;
   checked : (id : number)=>void;
+  read : ()=>void;
   };
 
-const Content = ({ classes , todoList,create,checked,deleted } : ContentProps)=> {
+const Content = ({ classes , todoList,create,checked,deleted ,read} : ContentProps)=> {
 
     return (
       <main className={classes.content}>
@@ -36,7 +37,7 @@ const Content = ({ classes , todoList,create,checked,deleted } : ContentProps)=>
           {/* Home */}
           <Grid container spacing={3}>
             <Grid item xs={12} md={8} lg={9}>
-              <ToDoListMain todos={todoList} create={create} deleted = {deleted} checked ={checked} />
+              <ToDoListMain todos={todoList} read= {read} create={create} deleted = {deleted} checked ={checked} />
             </Grid>
           </Grid>
           {/* Home */}

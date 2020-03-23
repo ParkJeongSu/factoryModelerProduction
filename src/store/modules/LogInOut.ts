@@ -32,9 +32,13 @@ const CHANGEINPUTVALUE = 'LogInOut/CHANGEINPUTVALUE';
 const SELECTEDDBCONFIG = 'LogInOut/SELECTEDDBCONFIG';
 const CONNECTTEST = 'LogInOut/CONNECTTEST';
 
-
+const READBCONFIG = 'LogInOut/READBCONFIG';
 const SAVEDBCONFIG = 'LogInOut/SAVEDBCONFIG';
 const DELETEDBCONFIG = 'LogInOut/DELETEDBCONFIG';
+
+interface ReadDbConfigAction {
+  type : typeof READBCONFIG;
+}
 
 interface DeleteDbConfigAction {
   type : typeof DELETEDBCONFIG;
@@ -83,9 +87,15 @@ interface ConnectTestAction {
   }
 }
 
-export type LogInActionTypes = LogInAction|LogOutAction|ChangeInputValueAction|SelectedDbConfigAction|ConnectTestAction|SaveDbConfigAction|DeleteDbConfigAction;
+export type LogInActionTypes = LogInAction|LogOutAction|ChangeInputValueAction|SelectedDbConfigAction|ConnectTestAction|SaveDbConfigAction|DeleteDbConfigAction|ReadDbConfigAction;
 
-function deletebConfig (){
+function readDbConfig (){
+  return {
+    type : READBCONFIG
+  }
+}
+
+function deleteDbConfig (){
   return {
     type : DELETEDBCONFIG
   }
@@ -141,22 +151,13 @@ function logOut (){
 }
 
 export const actionCreators = {
-  logIn,logOut,changeInputValue,selectedDbConfig,connectTest,saveDbConfig,deletebConfig
+  logIn,logOut,changeInputValue,selectedDbConfig,connectTest,saveDbConfig,deleteDbConfig,readDbConfig
 };
 
-const initDbconifg= () : Dbconfig[] =>{
-  let initDbconifgList : Dbconfig[] =[];
-  try {
-    initDbconifgList = (window as any).getDbConfig();
-  } catch (error) {
-    console.log('error : ',error );
-  }
-  return initDbconifgList;
-}
 
 // **** 초기상태 정의
 const initialState : LogInOutState = {
-    dbconfigList : initDbconifg(),    
+    dbconfigList : [],    
     isLogined: false,
     id: null,
     name:null,
@@ -172,6 +173,15 @@ const initialState : LogInOutState = {
 export default function LogInOut(state = initialState, action : LogInActionTypes) {
   CONNECTTEST
   switch (action.type) {
+
+    case READBCONFIG:
+      let dbconfigList :Array<Dbconfig> = [];
+      try {
+        dbconfigList = (window as any).getDbConfig();
+      } catch (error) {
+        
+      }
+      return produce(state,draft => {draft.dbconfigList=dbconfigList});
     case DELETEDBCONFIG:
       try {
         let dbconfigList :Array<Dbconfig> = state.dbconfigList;

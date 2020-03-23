@@ -29,7 +29,11 @@ interface AddTodoProps  {
             variant="contained"
             type="submit"
 			      color="primary"			
-            onClick={()=>{handleClick(inputValue);}}
+            onClick={(e)=>{
+              e.preventDefault();
+              handleClick(inputValue);
+              setInputValue('');
+            }}
           >
             Add Todo
           </Button>
