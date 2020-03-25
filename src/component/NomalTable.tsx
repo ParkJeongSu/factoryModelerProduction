@@ -2,16 +2,18 @@
 import MaterialTable from 'material-table';
 
 interface NomalTableProps  {
-	columnList : [];
-	dataList : [];
+	columnList? : [];
+	dataList? : [];
   };
   
 const NomalTable = ({columnList, dataList} : NomalTableProps)=>{
+  let cList = JSON.parse(JSON.stringify(columnList));
+  let dList = JSON.parse(JSON.stringify(dataList)); 
   return (
     <MaterialTable
       title="Editable Preview"
-      columns={columnList}
-      data={dataList}
+      columns={cList}
+      data={dList}
       editable={{
         onRowAdd: newData =>
           new Promise((resolve, reject) => {

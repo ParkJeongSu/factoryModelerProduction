@@ -231,9 +231,9 @@ ipcMain.on("getFM_MENU", async (event,arg)=>{
     connection = await oracledb.getConnection(dbconfig);
 
     result = await connection.execute(
-      `SELECT * FROM FM_MENU WHERE ADMINFLAG = :ADMINFLAG`,
-      { ADMINFLAG : arg },
-      {outFormat: oracledb.OUT_FORMAT_OBJECT}
+      `SELECT * FROM FM_MENU WHERE ADMINFLAG = :ADMINFLAG`
+      ,{ ADMINFLAG : arg }
+      ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
     );
   }
   catch(err){
@@ -252,3 +252,88 @@ ipcMain.on("getFM_MENU", async (event,arg)=>{
   event.returnValue = result.rows;
 
 });
+
+ipcMain.on("getFM_METADATA", async (event,arg)=>{
+
+  let connection;
+  let result;
+  let columnList=[];
+  try{
+    connection = await oracledb.getConnection(dbconfig);
+
+    result = await connection.execute(
+      `SELECT * FROM FM_METADATA A WHERE A.TABLENAME =:TABLENAME  ORDER BY A.COLUMNORDER`
+      ,{ TABLENAME : arg.FM_METADATA }
+      ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
+    );
+    for(let i=0;i<result.rows.length;i++){
+      columnList.push(
+        {title : result.rows[i].COLUMNNAME,field : result.rows[i].COLUMNNAME}
+        );
+    }
+  }
+  catch(err){
+    console.error(err);
+  }
+  finally{
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+
+  event.returnValue = columnList;
+
+});
+
+
+
+ipcMain.on("getData", async (event,arg)=>{
+
+  let tableName = arg.FM_METADATA;
+  let connection;
+  let result;
+  let columnList = [];
+  for(let i=0;i<arg.columnList.length;i++){
+    columnList.push(arg.columnList[i].title);
+  }
+  let columnOrder = columnList.join(',');
+  let dataList=[];
+
+  try{
+    connection = await oracledb.getConnection(dbconfig);
+
+    result = await connection.execute(
+      `SELECT ${columnOrder} FROM ${tableName}`
+      , {}
+      ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
+    );
+    for(let i=0;i<result.rows.length;i++){
+      let data = {};
+      for(let j=0;j<arg.columnList.length;j++){
+        data[arg.columnList[j].title]=result.rows[i][arg.columnList[j].title];
+      }
+      dataList.push(data);
+    }
+  }
+  catch(err){
+    console.error(err);
+  }
+  finally{
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+
+  event.returnValue = dataList;
+
+});
+
+

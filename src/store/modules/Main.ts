@@ -12,44 +12,66 @@ export interface SideBar{
     ADMINFLAG :string;
     CHILDRENLIST? :SideBar[];
     SHOW? :boolean;
-  }
-  export interface MainState {
+  };
+export interface MainState {
     menuList : SideBar[],
     adminMenuList : SideBar[],
-  }
+    MENUTYPE : string,
+    FM_METADATA? : string,
+    columnList? : any[],
+    dataList? : any[]
+    
+  };
   
 
 const READSIDEBAR = 'MAIN/READSIDEBAR';
+const CHECKEDSIDEBAR = 'MAIN/CHECKEDSIDEBAR';
 const CLICKSIDEBAR = 'MAIN/CLICKSIDEBAR';
 
   interface ReadSideBarAction {
     type : typeof READSIDEBAR;
   }
-  interface ClickSideBarAction {
-    type : typeof CLICKSIDEBAR;
+  interface CheckedSideBarAction {
+    type : typeof CHECKEDSIDEBAR;
     MENUID :  number;
   }
-  export type MainActionTypes = ReadSideBarAction|ClickSideBarAction;
+  interface ClickSideBarAction{
+    type : typeof CLICKSIDEBAR;
+    payload : {
+      sidebar : SideBar;
+    }
+  }
+  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction;
 
   function readSideBar (){
     return {
       type : READSIDEBAR
     }
   }
-  function clickSideBar ( MENUID : number ){
+  function checkedSideBar ( MENUID : number ){
     return {
-      type : CLICKSIDEBAR,
+      type : CHECKEDSIDEBAR,
       MENUID : MENUID
     }
   }
+  function clickSideBar ( sideBar : SideBar ){
+    return {
+      type : CLICKSIDEBAR,
+      payload : sideBar
+    }
+  }
+
 
   export const actionCreators = {
-    readSideBar,clickSideBar
+    readSideBar,checkedSideBar,clickSideBar
   };
 
   const initialState : MainState = {
     menuList : [],
     adminMenuList : [],
+    MENUTYPE: '',
+    columnList : [],
+    dataList : []
   };
 
   
@@ -59,6 +81,15 @@ export default function Main(state = initialState, action :MainActionTypes) {
     let adminMenuList : SideBar[];
     switch (action.type) {
       case CLICKSIDEBAR:
+        let parameter : any = Object.assign({},action.payload);
+        let columnListResult = (window as any).getFM_METADATA(action.payload);
+        parameter.columnList = columnListResult;
+        let dataListResult = (window as any).getData(parameter);
+        return produce(state ,draft =>{
+          draft.columnList = columnListResult;
+          draft.dataList = dataListResult;
+        });
+      case CHECKEDSIDEBAR:
         return produce( state, draft =>{
           for(let i=0;i<draft.menuList.length;i++){
             if(action.MENUID === draft.menuList[i].MENUID){

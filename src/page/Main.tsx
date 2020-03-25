@@ -105,10 +105,11 @@ interface MainProps {
   todoList : Todo[];
   sidebarList : SideBar[];
   adminSidebarList : SideBar[];
-
+  columnList? : [];
+	dataList? : [];
 }
 
-const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList} : MainProps)=> {
+const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,columnList,dataList} : MainProps)=> {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   React.useEffect(()=>{
@@ -118,9 +119,12 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList} :
         console.log('Main unMount 실행');
     };
   },[]);
+  const handleClickSideBar = (sidebar : SideBar) : void =>{
+    MainActions.clickSideBar(sidebar);
+  }
 
-  const handleClickSideBar = (menuID : number) : void =>{
-    MainActions.clickSideBar(menuID);
+  const handleCheckedSideBar = (menuID : number) : void =>{
+    MainActions.checkedSideBar(menuID);
   }
 
   const handelReadTodoList = () : void =>{
@@ -145,8 +149,8 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList} :
       <div className={classes.root}>
         <CssBaseline />
         <Header classes={classes} open={open} onClick={handleDrawerOpen} title='Sample'/>
-        <Sidebar classes={classes} open ={open} onClick={handleDrawerClose} sidebarList = {sidebarList} adminSidebarList ={adminSidebarList} clickSideBar = {handleClickSideBar}/>
-        <Content classes={classes} todoList = {todoList} read = {handelReadTodoList} create={handlCreateTodo} checked={handleCheckedTodo} deleted = {handleDeleteTodo} />
+        <Sidebar classes={classes} open ={open} onClick={handleDrawerClose} sidebarList = {sidebarList} adminSidebarList ={adminSidebarList} checkedSideBar = {handleCheckedSideBar} clickSideBar = {handleClickSideBar}/>
+        <Content classes={classes} todoList = {todoList} read = {handelReadTodoList} create={handlCreateTodo} checked={handleCheckedTodo} deleted = {handleDeleteTodo} columnList = {columnList} dataList={dataList}/>
       </div>
     );
   }
@@ -155,7 +159,9 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList} :
   const mapStateToProps = ({ TodoList,Main } : RootState) => ({
     todoList : TodoList.todoList,
     sidebarList : Main.menuList,
-    adminSidebarList : Main.adminMenuList 
+    adminSidebarList : Main.adminMenuList ,
+    columnList : Main.columnList,
+    dataList : Main.dataList
   });
   
   const mapDispatchToProps = (dispatch : any) => ({

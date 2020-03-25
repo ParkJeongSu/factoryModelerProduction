@@ -12,10 +12,11 @@ import {SideBar} from './../store/modules/Main';
     interface NestedListProps  {
         menuTitle : string,
         menuList : SideBar[]
-        clickSideBar : (menuId :number) => void;
+        checkedSideBar : (menuId :number) => void;
+        clickSideBar : (sidebar :SideBar) => void;
     };
   
-const NestedList = ({menuTitle , menuList,clickSideBar} : NestedListProps)=>{
+const NestedList = ({menuTitle , menuList,checkedSideBar,clickSideBar} : NestedListProps)=>{
 
     return (
         <div>
@@ -23,7 +24,7 @@ const NestedList = ({menuTitle , menuList,clickSideBar} : NestedListProps)=>{
                 <ListSubheader inset>{menuTitle}</ListSubheader>
             {menuList.map((item)=>{ return ( 
                 <div key = {item.MENUID}>
-                    <ListItem button onClick={(e)=>{clickSideBar(item.MENUID);}}>
+                    <ListItem button onClick={(e)=>{checkedSideBar(item.MENUID);}}>
                         <ListItemText primary={item.MENUNAME}/>
                     </ListItem>
                     <Collapse
@@ -35,15 +36,17 @@ const NestedList = ({menuTitle , menuList,clickSideBar} : NestedListProps)=>{
                         <List component="div" disablePadding>
                             {
                             item.CHILDRENLIST.map(
-                                (sidebar)=>{return (
-                                <ListItem button key={sidebar.MENUID}>
-                                    <ListItemIcon>
-                                        <LabelIcon />
-                                    </ListItemIcon>
-                                    <ListItemText primary={sidebar.MENUNAME} />
-                                </ListItem>
-                            );}
-                            )}
+                                (sidebar)=>{
+                                    return (
+                                        <ListItem button key={sidebar.MENUID} onClick = {(e)=>{ clickSideBar(sidebar); }} >
+                                            <ListItemIcon>
+                                                <LabelIcon />
+                                            </ListItemIcon>
+                                            <ListItemText primary={sidebar.MENUNAME} />
+                                        </ListItem> 
+                                        );
+                                    })
+                            }
                         </List>
                     </Collapse>
                 </div>

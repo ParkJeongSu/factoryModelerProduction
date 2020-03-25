@@ -17,9 +17,11 @@ interface ContentProps  {
   deleted : (id : number)=>void;
   checked : (id : number)=>void;
   read : ()=>void;
+  columnList? : [];
+	dataList? : [];
   };
 
-const Content = ({ classes , todoList,create,checked,deleted ,read} : ContentProps)=> {
+const Content = ({ classes , todoList,create,checked,deleted ,read,columnList,dataList} : ContentProps)=> {
 
     return (
       <main className={classes.content}>
@@ -29,7 +31,7 @@ const Content = ({ classes , todoList,create,checked,deleted ,read} : ContentPro
           {/* Nomal Table */}
           <Grid container spacing={3}>
             <Grid item xs={12} md={8} lg={9}>
-              <NomalTable columnList={[]} dataList = {[]} />
+              <NomalTable columnList={columnList} dataList = {dataList} />
             </Grid>
           </Grid>
           {/* Nomal Table */}

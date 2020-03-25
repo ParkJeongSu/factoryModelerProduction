@@ -11,12 +11,13 @@ interface SidebarProps  {
   classes : any;
   open :boolean;
   onClick : () => void;
-  clickSideBar : (menuId :number) => void;
+  checkedSideBar : (menuId :number) => void;
+  clickSideBar : (sidebar :SideBar) => void;
   sidebarList : SideBar[];
   adminSidebarList : SideBar[];
   };
 
-const Sidebar = ({classes,open,onClick,sidebarList,adminSidebarList,clickSideBar} : SidebarProps)=>{
+const Sidebar = ({classes,open,onClick,sidebarList,adminSidebarList,checkedSideBar,clickSideBar} : SidebarProps)=>{
   const handleOnClick = ()=>{
     console.log('handleOnClick');
     onClick();
@@ -33,9 +34,9 @@ const Sidebar = ({classes,open,onClick,sidebarList,adminSidebarList,clickSideBar
           </IconButton>
         </div>
         <Divider />
-        <NestedList menuTitle='Menu' menuList = {sidebarList} clickSideBar = {clickSideBar}/>
+        <NestedList menuTitle='Menu' menuList = {sidebarList} checkedSideBar = {checkedSideBar} clickSideBar = {clickSideBar} />
         <Divider />
-        <NestedList menuTitle='Admin' menuList = {adminSidebarList} clickSideBar = {clickSideBar}/>
+        <NestedList menuTitle='Admin' menuList = {adminSidebarList} checkedSideBar = {checkedSideBar} clickSideBar = {clickSideBar}/>
       </Drawer>
     );
 }
