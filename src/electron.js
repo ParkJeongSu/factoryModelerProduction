@@ -257,7 +257,6 @@ ipcMain.on("getFM_METADATA", async (event,arg)=>{
 
   let connection;
   let result;
-  let columnList=[];
   try{
     connection = await oracledb.getConnection(dbconfig);
 
@@ -266,11 +265,6 @@ ipcMain.on("getFM_METADATA", async (event,arg)=>{
       ,{ TABLENAME : arg.FM_METADATA }
       ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
     );
-    for(let i=0;i<result.rows.length;i++){
-      columnList.push(
-        {title : result.rows[i].COLUMNNAME,field : result.rows[i].COLUMNNAME}
-        );
-    }
   }
   catch(err){
     console.error(err);
@@ -285,7 +279,7 @@ ipcMain.on("getFM_METADATA", async (event,arg)=>{
     }
   }
 
-  event.returnValue = columnList;
+  event.returnValue = result.rows;
 
 });
 
@@ -293,12 +287,12 @@ ipcMain.on("getFM_METADATA", async (event,arg)=>{
 
 ipcMain.on("getData", async (event,arg)=>{
 
-  let tableName = arg.FM_METADATA;
+  let tableName = arg[0].TABLENAME;
   let connection;
   let result;
   let columnList = [];
-  for(let i=0;i<arg.columnList.length;i++){
-    columnList.push(arg.columnList[i].title);
+  for(let i=0;i<arg.length;i++){
+    columnList.push(arg[i].COLUMNNAME);
   }
   let columnOrder = columnList.join(',');
   let dataList=[];
@@ -311,10 +305,17 @@ ipcMain.on("getData", async (event,arg)=>{
       , {}
       ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
     );
+
     for(let i=0;i<result.rows.length;i++){
       let data = {};
-      for(let j=0;j<arg.columnList.length;j++){
-        data[arg.columnList[j].title]=result.rows[i][arg.columnList[j].title];
+      for(let j=0;j<arg.length;j++){
+        if(arg[j].DATATYPE == "DATE"){
+          data[arg[j].COLUMNNAME]=result.rows[i][arg[j].COLUMNNAME].toLocaleString();
+        }
+        else{
+          data[arg[j].COLUMNNAME]=result.rows[i][arg[j].COLUMNNAME];
+        }
+        
       }
       dataList.push(data);
     }

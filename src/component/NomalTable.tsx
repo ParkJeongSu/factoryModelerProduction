@@ -3,15 +3,18 @@ import MaterialTable from 'material-table';
 
 interface NomalTableProps  {
 	columnList? : [];
-	dataList? : [];
+  dataList? : [];
+  clickRowData : (rowData : any) => void;
   };
   
-const NomalTable = ({columnList, dataList} : NomalTableProps)=>{
+const NomalTable = ({columnList, dataList,clickRowData} : NomalTableProps)=>{
+  const [selectedRow,setselectedRow] = React.useState(null);
   let cList = JSON.parse(JSON.stringify(columnList));
   let dList = JSON.parse(JSON.stringify(dataList)); 
+
   return (
     <MaterialTable
-      title="Editable Preview"
+      title="Data List"
       columns={cList}
       data={dList}
       editable={{
@@ -40,7 +43,11 @@ const NomalTable = ({columnList, dataList} : NomalTableProps)=>{
       }}
       options={{
         actionsColumnIndex: -1,
-        exportButton: true
+        exportButton: true,
+        filtering: true,
+        rowStyle : rowData =>({
+          backgroundColor: (selectedRow && selectedRow.tableData.id === rowData.tableData.id) ? '#EEE' : '#FFF'
+        })
       }}
       actions={[
         {
@@ -50,6 +57,13 @@ const NomalTable = ({columnList, dataList} : NomalTableProps)=>{
           onClick: (event) => alert("You want to add a new row")
         }
       ]}
+      onRowClick = {
+        (event,selectRow)=>{
+          setselectedRow(selectRow);
+          clickRowData(selectRow);
+          console.log(selectRow);
+        }
+      }
     />
   )
 }

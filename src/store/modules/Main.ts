@@ -17,17 +17,34 @@ export interface MainState {
     menuList : SideBar[],
     adminMenuList : SideBar[],
     MENUTYPE : string,
-    FM_METADATA? : string,
-    columnList? : any[],
+    FM_METADATALIST? : FM_METADATA[],
+    columnList ? : any[],
     dataList? : any[]
     
   };
+  export interface FM_METADATA{
+    TABLENAME? : string,
+    COLUMNNAME? : string,
+    COLUMNORDER? : number,
+    ISKEY? : string,
+    DATATYPE? : string,
+    ISREQUIRED? : string,
+    INPUTTYPE?: string,
+    SELECTQUERY? : string,
+    PARIENTCOLUMNNAME?: string,
+    VALUE : any
+  }
   
 
 const READSIDEBAR = 'MAIN/READSIDEBAR';
 const CHECKEDSIDEBAR = 'MAIN/CHECKEDSIDEBAR';
 const CLICKSIDEBAR = 'MAIN/CLICKSIDEBAR';
+const CLICKROWDATA = 'MAIN/CLICKROWDATA';
 
+  interface ClickRowDataAction {
+    type : typeof CLICKROWDATA;
+    rowData : any;
+  }
   interface ReadSideBarAction {
     type : typeof READSIDEBAR;
   }
@@ -41,8 +58,14 @@ const CLICKSIDEBAR = 'MAIN/CLICKSIDEBAR';
       sidebar : SideBar;
     }
   }
-  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction;
+  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction;
 
+  function clickRowData (rowData : any){
+    return {
+      type : CLICKROWDATA,
+      rowData : rowData
+    }
+  }
   function readSideBar (){
     return {
       type : READSIDEBAR
@@ -63,13 +86,14 @@ const CLICKSIDEBAR = 'MAIN/CLICKSIDEBAR';
 
 
   export const actionCreators = {
-    readSideBar,checkedSideBar,clickSideBar
+    readSideBar,checkedSideBar,clickSideBar,clickRowData
   };
 
   const initialState : MainState = {
     menuList : [],
     adminMenuList : [],
     MENUTYPE: '',
+    FM_METADATALIST : [],
     columnList : [],
     dataList : []
   };
@@ -80,12 +104,35 @@ export default function Main(state = initialState, action :MainActionTypes) {
     let menuList : SideBar[];
     let adminMenuList : SideBar[];
     switch (action.type) {
+      case CLICKROWDATA:
+        return produce( state, draft =>{
+          for(let key in action.rowData){
+            for(let i=0;i<draft.FM_METADATALIST.length;i++){
+              if(key === draft.FM_METADATALIST[i].COLUMNNAME){
+                draft.FM_METADATALIST[i].VALUE = action.rowData[key];
+                break;
+              }
+            }
+          }
+          });
+
       case CLICKSIDEBAR:
-        let parameter : any = Object.assign({},action.payload);
-        let columnListResult = (window as any).getFM_METADATA(action.payload);
-        parameter.columnList = columnListResult;
-        let dataListResult = (window as any).getData(parameter);
+        let FM_METADATALIST : any[] =[];
+        let dataListResult : any[] =[];
+        try {
+          FM_METADATALIST = (window as any).getFM_METADATA(action.payload);
+          dataListResult = (window as any).getData(FM_METADATALIST);
+        } catch (error) {
+          
+        }
+        
+        let columnListResult : any[] = [];
+        for(let i=0 ; i < FM_METADATALIST.length;i++){
+          columnListResult.push({ title : FM_METADATALIST[i].COLUMNNAME, field : FM_METADATALIST[i].COLUMNNAME });
+        }
+        
         return produce(state ,draft =>{
+          draft.FM_METADATALIST = FM_METADATALIST;
           draft.columnList = columnListResult;
           draft.dataList = dataListResult;
         });
@@ -115,8 +162,6 @@ export default function Main(state = initialState, action :MainActionTypes) {
     }
   }
 
-
-
   const parseMenuList = (result : SideBar[] ) : SideBar[] =>{
     let map : any = {};
     let roots :SideBar[] = [];
@@ -125,7 +170,6 @@ export default function Main(state = initialState, action :MainActionTypes) {
       result[i].SHOW=true;
       result[i].CHILDRENLIST = [];
     }
-
     for (let i = 0; i < result.length; i += 1) {
       map[result[i].MENUID] = i; // initialize the map
     }

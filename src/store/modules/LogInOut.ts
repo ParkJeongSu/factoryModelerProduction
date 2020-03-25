@@ -158,7 +158,7 @@ export const actionCreators = {
 // **** 초기상태 정의
 const initialState : LogInOutState = {
     dbconfigList : [],    
-    isLogined: false,
+    isLogined: true,
     id: null,
     name:null,
     host:null,

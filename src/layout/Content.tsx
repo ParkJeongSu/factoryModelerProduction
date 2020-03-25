@@ -6,6 +6,8 @@ import Copyright from './../component/Copyright';
 import ToDoListMain from '../component/ToDoListMain';
 import NomalTable from '../component/NomalTable';
 import {actionCreators as ToDoActions, Todo} from '../store/modules/TodoList';
+import DetailInfo from  '../component/DetailInfo';
+import {FM_METADATA} from './../store/modules/Main';
 // import Paper from '@material-ui/core/Paper';
 
 
@@ -17,11 +19,13 @@ interface ContentProps  {
   deleted : (id : number)=>void;
   checked : (id : number)=>void;
   read : ()=>void;
+  clickRowData : (rowData : any) => void;
   columnList? : [];
-	dataList? : [];
+  dataList? : [];
+  FM_METADATALIST : FM_METADATA[];
   };
 
-const Content = ({ classes , todoList,create,checked,deleted ,read,columnList,dataList} : ContentProps)=> {
+const Content = ({ classes , todoList,create,checked,deleted ,read,columnList,dataList,clickRowData,FM_METADATALIST} : ContentProps)=> {
 
     return (
       <main className={classes.content}>
@@ -31,7 +35,10 @@ const Content = ({ classes , todoList,create,checked,deleted ,read,columnList,da
           {/* Nomal Table */}
           <Grid container spacing={3}>
             <Grid item xs={12} md={8} lg={9}>
-              <NomalTable columnList={columnList} dataList = {dataList} />
+              <NomalTable columnList={columnList} dataList = {dataList} clickRowData= {clickRowData}/>
+            </Grid>
+            <Grid item xs={12} md={4} lg={3}>
+              <DetailInfo FM_METADATALIST={FM_METADATALIST}/>
             </Grid>
           </Grid>
           {/* Nomal Table */}

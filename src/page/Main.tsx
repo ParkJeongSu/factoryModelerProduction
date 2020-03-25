@@ -13,7 +13,7 @@ import { RootState } from '../store/modules';
 import {actionCreators as ToDoActions, Todo} from '../store/modules/TodoList';
 import {actionCreators as MainActions} from '../store/modules/Main';
 import {bindActionCreators} from 'redux';
-import {SideBar} from './../store/modules/Main';
+import {SideBar,FM_METADATA} from './../store/modules/Main';
 
 const drawerWidth = 240;
 
@@ -106,10 +106,11 @@ interface MainProps {
   sidebarList : SideBar[];
   adminSidebarList : SideBar[];
   columnList? : [];
-	dataList? : [];
+  dataList? : [];
+  FM_METADATALIST : FM_METADATA[]
 }
 
-const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,columnList,dataList} : MainProps)=> {
+const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,columnList,dataList,FM_METADATALIST} : MainProps)=> {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   React.useEffect(()=>{
@@ -119,6 +120,10 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
         console.log('Main unMount 실행');
     };
   },[]);
+
+  const handleClickRowData = (rowData : any) : void =>{
+    MainActions.clickRowData(rowData);
+  }
   const handleClickSideBar = (sidebar : SideBar) : void =>{
     MainActions.clickSideBar(sidebar);
   }
@@ -150,7 +155,7 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
         <CssBaseline />
         <Header classes={classes} open={open} onClick={handleDrawerOpen} title='Sample'/>
         <Sidebar classes={classes} open ={open} onClick={handleDrawerClose} sidebarList = {sidebarList} adminSidebarList ={adminSidebarList} checkedSideBar = {handleCheckedSideBar} clickSideBar = {handleClickSideBar}/>
-        <Content classes={classes} todoList = {todoList} read = {handelReadTodoList} create={handlCreateTodo} checked={handleCheckedTodo} deleted = {handleDeleteTodo} columnList = {columnList} dataList={dataList}/>
+        <Content classes={classes} todoList = {todoList} read = {handelReadTodoList} create={handlCreateTodo} checked={handleCheckedTodo} deleted = {handleDeleteTodo} columnList = {columnList} dataList={dataList} clickRowData ={handleClickRowData} FM_METADATALIST={FM_METADATALIST}/>
       </div>
     );
   }
@@ -161,7 +166,8 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
     sidebarList : Main.menuList,
     adminSidebarList : Main.adminMenuList ,
     columnList : Main.columnList,
-    dataList : Main.dataList
+    dataList : Main.dataList,
+    FM_METADATALIST : Main.FM_METADATALIST
   });
   
   const mapDispatchToProps = (dispatch : any) => ({

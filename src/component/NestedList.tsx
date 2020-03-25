@@ -11,7 +11,7 @@ import {SideBar} from './../store/modules/Main';
 
     interface NestedListProps  {
         menuTitle : string,
-        menuList : SideBar[]
+        menuList? : SideBar[]
         checkedSideBar : (menuId :number) => void;
         clickSideBar : (sidebar :SideBar) => void;
     };
@@ -22,7 +22,8 @@ const NestedList = ({menuTitle , menuList,checkedSideBar,clickSideBar} : NestedL
         <div>
             <List>
                 <ListSubheader inset>{menuTitle}</ListSubheader>
-            {menuList.map((item)=>{ return ( 
+            {undefined !== menuList &&
+            menuList.map((item)=>{ return ( 
                 <div key = {item.MENUID}>
                     <ListItem button onClick={(e)=>{checkedSideBar(item.MENUID);}}>
                         <ListItemText primary={item.MENUNAME}/>
