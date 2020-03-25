@@ -63,10 +63,11 @@ app.on('activate', function () {
 
 
 let dbconfig = {
-  user : null,
-  password : null,
-  host: null
-}
+  user : 'SCOTT',
+  password : '1234',
+  host: 'localhost:1521/orcl'
+};
+let userID =  null;
 
 /* Db Config */
 ipcMain.on("getDbConfig", (event, arg) => {
@@ -222,3 +223,32 @@ ipcMain.on("dbConnectTest", async (event,arg)=>{
   }
 });
 
+ipcMain.on("getFM_MENU", async (event,arg)=>{
+  let connection;
+  let result;
+
+  try{
+    connection = await oracledb.getConnection(dbconfig);
+
+    result = await connection.execute(
+      `SELECT * FROM FM_MENU WHERE ADMINFLAG = :ADMINFLAG`,
+      { ADMINFLAG : arg },
+      {outFormat: oracledb.OUT_FORMAT_OBJECT}
+    );
+  }
+  catch(err){
+    console.error(err);
+  }
+  finally{
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+
+  event.returnValue = result.rows;
+
+});

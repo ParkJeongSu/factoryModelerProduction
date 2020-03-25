@@ -3,22 +3,27 @@
     {
       "id": 0,
       "task": "do something 1",
-      "checked": true
+      "checked": false
     },
     {
       "id": 1,
       "task": "do something 2",
-      "checked": false
+      "checked": true
     },
     {
       "id": 2,
       "task": "do something 3",
-      "checked": false
+      "checked": true
     },
     {
       "id": 3,
       "task": "do something 4",
-      "checked": false
+      "checked": true
+    },
+    {
+      "id": 4,
+      "task": "test",
+      "checked": true
     }
   ]
 }

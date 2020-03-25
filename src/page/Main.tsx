@@ -8,10 +8,12 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 
 import { connect } from 'react-redux';
-import { StoreState } from '../store/modules';
+// import { StoreState } from '../store/modules';
+import { RootState } from '../store/modules';
 import {actionCreators as ToDoActions, Todo} from '../store/modules/TodoList';
+import {actionCreators as MainActions} from '../store/modules/Main';
 import {bindActionCreators} from 'redux';
-
+import {SideBar} from './../store/modules/Main';
 
 const drawerWidth = 240;
 
@@ -99,29 +101,40 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface MainProps {
   ToDoActions: typeof ToDoActions;
+  MainActions : typeof MainActions;
   todoList : Todo[];
+  sidebarList : SideBar[];
+  adminSidebarList : SideBar[];
+
 }
 
-const  Main = ({ToDoActions,todoList} : MainProps)=> {
+const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList} : MainProps)=> {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   React.useEffect(()=>{
       console.log('Main Mount 실행');
+      MainActions.readSideBar();
     return ()=>{
         console.log('Main unMount 실행');
-    };});
-    const handelReadTodoList = () : void =>{
-      ToDoActions.readTodoList();
-    }
-    const handlCreateTodo= (todo : string) :void =>{
-      ToDoActions.createTodoList(todo);
-    }
-    const handleDeleteTodo = (id : number) : void =>{
-      ToDoActions.deleteTodoList(id);
-    }
-    const handleCheckedTodo = (id : number) : void =>{
-      ToDoActions.checkedTodoList(id);
-    }
+    };
+  },[]);
+
+  const handleClickSideBar = (menuID : number) : void =>{
+    MainActions.clickSideBar(menuID);
+  }
+
+  const handelReadTodoList = () : void =>{
+    ToDoActions.readTodoList();
+  }
+  const handlCreateTodo= (todo : string) :void =>{
+    ToDoActions.createTodoList(todo);
+  }
+  const handleDeleteTodo = (id : number) : void =>{
+    ToDoActions.deleteTodoList(id);
+  }
+  const handleCheckedTodo = (id : number) : void =>{
+    ToDoActions.checkedTodoList(id);
+  }
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -132,19 +145,22 @@ const  Main = ({ToDoActions,todoList} : MainProps)=> {
       <div className={classes.root}>
         <CssBaseline />
         <Header classes={classes} open={open} onClick={handleDrawerOpen} title='Sample'/>
-        <Sidebar classes={classes} open ={open} onClick={handleDrawerClose} />
+        <Sidebar classes={classes} open ={open} onClick={handleDrawerClose} sidebarList = {sidebarList} adminSidebarList ={adminSidebarList} clickSideBar = {handleClickSideBar}/>
         <Content classes={classes} todoList = {todoList} read = {handelReadTodoList} create={handlCreateTodo} checked={handleCheckedTodo} deleted = {handleDeleteTodo} />
       </div>
     );
   }
 
 
-  const mapStateToProps = ({ TodoList } : StoreState) => ({
-    todoList : TodoList.todoList
+  const mapStateToProps = ({ TodoList,Main } : RootState) => ({
+    todoList : TodoList.todoList,
+    sidebarList : Main.menuList,
+    adminSidebarList : Main.adminMenuList 
   });
   
   const mapDispatchToProps = (dispatch : any) => ({
-    ToDoActions : bindActionCreators(ToDoActions,dispatch)
+    ToDoActions : bindActionCreators(ToDoActions,dispatch),
+    MainActions :  bindActionCreators(MainActions,dispatch)
   });
 
   export default connect(mapStateToProps,mapDispatchToProps)(Main);

@@ -46,4 +46,9 @@ window.dbConnectTest = function (action) {
   return ipcRenderer.sendSync('dbConnectTest',action);
 }
 
+window.getFM_MENU = function (action) {
+  return ipcRenderer.sendSync('getFM_MENU',action);
+}
+
+
 /* Db */

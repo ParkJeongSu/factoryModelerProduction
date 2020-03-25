@@ -55,7 +55,7 @@ const Todo = ({id,todo,checked,handleDeleted,handleChecked} : TodoProps)=>{
 			<IconButton onClick={()=>{ handleRemove(id); }}>
 				<DeleteIcon/>
 			</IconButton>
-			<Checkbox onClick={()=>{ handleCheck(id); }} />
+			<Checkbox checked = {checked} onClick={()=>{ handleCheck(id); }} />
 		</Container>
         <Divider />
       </ListItem>

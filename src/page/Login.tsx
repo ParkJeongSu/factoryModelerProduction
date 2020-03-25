@@ -16,7 +16,8 @@ import CustomTextField from './../component/CustomTextField';
 
 
 import { connect } from 'react-redux';
-import { StoreState } from '../store/modules';
+// import { StoreState } from '../store/modules';
+import { RootState } from '../store/modules';
 import {actionCreators as LoginActions, Dbconfig} from '../store/modules/LogInOut';
 import {bindActionCreators} from 'redux';
 
@@ -127,7 +128,7 @@ const Login = ( {LoginActions,name,host,dbid,dbpw,userid,userpw,dbconfigList,dbC
   );
 }
 
-const mapStateToProps = ({ LogInOut } : StoreState) => ({
+const mapStateToProps = ({ LogInOut } : RootState) => ({
   dbconfigList : LogInOut.dbconfigList,
   name : LogInOut.name,
   host:LogInOut.host,

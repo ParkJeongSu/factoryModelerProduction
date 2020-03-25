@@ -4,7 +4,8 @@ import Login from './page/Login';
 import Main from './page/Main';
 
 import { connect } from 'react-redux';
-import { StoreState } from './store/modules';
+// import { StoreState } from './store/modules';
+import { RootState } from './store/modules';
 
 interface AppProps {
   isLogined : boolean;
@@ -19,7 +20,7 @@ const App = ( {isLogined} : AppProps) => {
   );
 }
 
-const mapStateToProps = ({ LogInOut } : StoreState) => ({
+const mapStateToProps = ({ LogInOut } : RootState) => ({
   isLogined : LogInOut.isLogined
 });
 

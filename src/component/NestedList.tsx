@@ -5,23 +5,17 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListSubheader from '@material-ui/core/ListSubheader';
 import Collapse from "@material-ui/core/Collapse";
-
 import LabelIcon from '@material-ui/icons/Label';
+import {SideBar} from './../store/modules/Main';
 
 
-    interface sideBarList  {
-        MENUID : number
-        MENUNAME : string
-        show : boolean
-        children : Array<sideBarList>
-        
-    };
     interface NestedListProps  {
-        menuTitle : string
-        menuList : Array<sideBarList>
+        menuTitle : string,
+        menuList : SideBar[]
+        clickSideBar : (menuId :number) => void;
     };
   
-const NestedList = ({menuTitle , menuList} : NestedListProps)=>{
+const NestedList = ({menuTitle , menuList,clickSideBar} : NestedListProps)=>{
 
     return (
         <div>
@@ -29,18 +23,18 @@ const NestedList = ({menuTitle , menuList} : NestedListProps)=>{
                 <ListSubheader inset>{menuTitle}</ListSubheader>
             {menuList.map((item)=>{ return ( 
                 <div key = {item.MENUID}>
-                    <ListItem button >
+                    <ListItem button onClick={(e)=>{clickSideBar(item.MENUID);}}>
                         <ListItemText primary={item.MENUNAME}/>
                     </ListItem>
                     <Collapse
                         component="li"
-                        in={item.show}
+                        in={item.SHOW}
                         timeout="auto"
                         unmountOnExit
                     >
                         <List component="div" disablePadding>
                             {
-                            item.children.map(
+                            item.CHILDRENLIST.map(
                                 (sidebar)=>{return (
                                 <ListItem button key={sidebar.MENUID}>
                                     <ListItemIcon>

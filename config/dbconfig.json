@@ -8,6 +8,15 @@
       "dbpw": "1234",
       "userid": "TEST",
       "userpw": "TEST"
+    },
+    {
+      "id": 1,
+      "name": "test",
+      "host": "test",
+      "dbid": "test",
+      "dbpw": "test",
+      "userid": "test",
+      "userpw": "tes"
     }
   ]
 }
