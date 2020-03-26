@@ -107,7 +107,7 @@ interface MainProps {
   adminSidebarList : SideBar[];
   columnList? : [];
   dataList? : [];
-  FM_METADATALIST : FM_METADATA[]
+  FM_METADATALIST : FM_METADATA[];
 }
 
 const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,columnList,dataList,FM_METADATALIST} : MainProps)=> {
@@ -120,7 +120,12 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
         console.log('Main unMount 실행');
     };
   },[]);
-
+  const handleCreate = () : void =>{
+    MainActions.create();
+  }
+  const handlechangeFm_MetaDataList = (name : string, value :any) : void =>{
+    MainActions.changeFm_MetaDataList(name , value);
+  }
   const handleClickRowData = (rowData : any) : void =>{
     MainActions.clickRowData(rowData);
   }
@@ -153,9 +158,35 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
     return (
       <div className={classes.root}>
         <CssBaseline />
-        <Header classes={classes} open={open} onClick={handleDrawerOpen} title='Sample'/>
-        <Sidebar classes={classes} open ={open} onClick={handleDrawerClose} sidebarList = {sidebarList} adminSidebarList ={adminSidebarList} checkedSideBar = {handleCheckedSideBar} clickSideBar = {handleClickSideBar}/>
-        <Content classes={classes} todoList = {todoList} read = {handelReadTodoList} create={handlCreateTodo} checked={handleCheckedTodo} deleted = {handleDeleteTodo} columnList = {columnList} dataList={dataList} clickRowData ={handleClickRowData} FM_METADATALIST={FM_METADATALIST}/>
+        <Header 
+          classes={classes} 
+          open={open} 
+          onClick={handleDrawerOpen} 
+          title={(FM_METADATALIST.length > 0 && FM_METADATALIST[0].TABLENAME!==null ) ? FM_METADATALIST[0].TABLENAME : "" }
+        />
+        <Sidebar 
+          classes={classes} 
+          open ={open} 
+          onClick={handleDrawerClose} 
+          sidebarList = {sidebarList} 
+          adminSidebarList ={adminSidebarList} 
+          checkedSideBar = {handleCheckedSideBar} 
+          clickSideBar = {handleClickSideBar}
+        />
+        <Content 
+          classes={classes} 
+          todoList = {todoList} 
+          read = {handelReadTodoList} 
+          create={handlCreateTodo} 
+          checked={handleCheckedTodo} 
+          deleted = {handleDeleteTodo} 
+          columnList = {columnList} 
+          dataList={dataList} 
+          clickRowData ={handleClickRowData} 
+          FM_METADATALIST={FM_METADATALIST}
+          handleOnChange = {handlechangeFm_MetaDataList}
+          handleCreate = {handleCreate} 
+        />
       </div>
     );
   }

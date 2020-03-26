@@ -338,3 +338,68 @@ ipcMain.on("getData", async (event,arg)=>{
 });
 
 
+
+
+
+ipcMain.on("createData", async (event,arg)=>{
+
+  let connection;
+  let result;
+  let columnList = [];
+  let dataList = [];
+  for(let i=0;i<arg.length;i++){
+    columnList.push(arg[i].COLUMNNAME);
+    dataList.push(arg[i].VALUE);
+  }
+  let insertSql = `INSERT INTO ${arg[0].TABLENAME} ( ${columnList.join(',')} ) VALUES ( ${dataList.join(',')} )`;
+
+  try{
+    connection = await oracledb.getConnection(dbconfig);
+
+    result = await connection.execute(
+      insertSql
+      , {}
+      ,{autoCommit: true}
+    );
+    console.log(result);
+
+    result = await connection.execute(
+      `SELECT ${columnList.join(',')} FROM ${arg[0].TABLENAME}`
+      , {}
+      ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
+    );
+
+    dataList = [];
+
+    for(let i=0;i<result.rows.length;i++){
+      let data = {};
+      for(let j=0;j<arg.length;j++){
+        if(arg[j].DATATYPE == "DATE"){
+          data[arg[j].COLUMNNAME]=result.rows[i][arg[j].COLUMNNAME].toLocaleString();
+        }
+        else{
+          data[arg[j].COLUMNNAME]=result.rows[i][arg[j].COLUMNNAME];
+        }
+        
+      }
+      dataList.push(data);
+    }
+
+  }
+  catch(err){
+    console.error(err);
+  }
+  finally{
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+
+  event.returnValue = dataList;
+
+});
+

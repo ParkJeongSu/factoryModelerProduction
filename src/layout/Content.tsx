@@ -23,9 +23,11 @@ interface ContentProps  {
   columnList? : [];
   dataList? : [];
   FM_METADATALIST : FM_METADATA[];
+  handleOnChange : (name:any ,value : any) => void;
+  handleCreate : () => void;
   };
 
-const Content = ({ classes , todoList,create,checked,deleted ,read,columnList,dataList,clickRowData,FM_METADATALIST} : ContentProps)=> {
+const Content = ({ classes , todoList,create,checked,deleted ,read,columnList,dataList,clickRowData,FM_METADATALIST,handleOnChange,handleCreate} : ContentProps)=> {
 
     return (
       <main className={classes.content}>
@@ -38,7 +40,7 @@ const Content = ({ classes , todoList,create,checked,deleted ,read,columnList,da
               <NomalTable columnList={columnList} dataList = {dataList} clickRowData= {clickRowData}/>
             </Grid>
             <Grid item xs={12} md={4} lg={3}>
-              <DetailInfo FM_METADATALIST={FM_METADATALIST}/>
+              <DetailInfo FM_METADATALIST={FM_METADATALIST} handleOnChange ={handleOnChange} handleCreate={handleCreate}/>
             </Grid>
           </Grid>
           {/* Nomal Table */}

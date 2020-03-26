@@ -19,7 +19,8 @@ export interface MainState {
     MENUTYPE : string,
     FM_METADATALIST? : FM_METADATA[],
     columnList ? : any[],
-    dataList? : any[]
+    dataList? : any[],
+    crudFlag? : string
     
   };
   export interface FM_METADATA{
@@ -32,7 +33,7 @@ export interface MainState {
     INPUTTYPE?: string,
     SELECTQUERY? : string,
     PARIENTCOLUMNNAME?: string,
-    VALUE : any
+    VALUE? : any
   }
   
 
@@ -40,7 +41,21 @@ const READSIDEBAR = 'MAIN/READSIDEBAR';
 const CHECKEDSIDEBAR = 'MAIN/CHECKEDSIDEBAR';
 const CLICKSIDEBAR = 'MAIN/CLICKSIDEBAR';
 const CLICKROWDATA = 'MAIN/CLICKROWDATA';
+const CHANGEFM_METADATALIST = 'MAIN/CHANGEFM_METADATALIST';
 
+const CREATE = 'MAIN/CREATE';
+
+  interface CreateAction {
+    type : typeof CREATE;
+  }
+
+  interface ChangeFm_MetaDataListAction {
+    type : typeof CHANGEFM_METADATALIST;
+    payload : {
+      name : string,
+      value :any
+    }
+  }
   interface ClickRowDataAction {
     type : typeof CLICKROWDATA;
     rowData : any;
@@ -58,7 +73,23 @@ const CLICKROWDATA = 'MAIN/CLICKROWDATA';
       sidebar : SideBar;
     }
   }
-  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction;
+  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction|ChangeFm_MetaDataListAction|CreateAction;
+
+  function create (){
+    return{
+      type : CREATE
+    }
+  }
+
+  function changeFm_MetaDataList (name : string,value : any){
+    return{
+      type : CHANGEFM_METADATALIST,
+      payload : {
+        name : name,
+        value :value
+      }
+    }
+  }
 
   function clickRowData (rowData : any){
     return {
@@ -86,7 +117,7 @@ const CLICKROWDATA = 'MAIN/CLICKROWDATA';
 
 
   export const actionCreators = {
-    readSideBar,checkedSideBar,clickSideBar,clickRowData
+    readSideBar,checkedSideBar,clickSideBar,clickRowData,changeFm_MetaDataList,create
   };
 
   const initialState : MainState = {
@@ -95,7 +126,8 @@ const CLICKROWDATA = 'MAIN/CLICKROWDATA';
     MENUTYPE: '',
     FM_METADATALIST : [],
     columnList : [],
-    dataList : []
+    dataList : [],
+    crudFlag : 'READ'
   };
 
   
@@ -103,7 +135,35 @@ const CLICKROWDATA = 'MAIN/CLICKROWDATA';
 export default function Main(state = initialState, action :MainActionTypes) {
     let menuList : SideBar[];
     let adminMenuList : SideBar[];
+    let FM_METADATALIST : any[] =[];
+    let dataListResult : any[] =[];
+    let columnListResult : any[] = [];
     switch (action.type) {
+
+      case CREATE:
+
+
+        try {
+          dataListResult = (window as any).createData(state.FM_METADATALIST);
+          
+        } catch (error) {
+          
+        }
+        
+        return produce(state ,draft =>{
+          draft.dataList = dataListResult;
+        });
+
+      case CHANGEFM_METADATALIST:
+        return produce( state, draft =>{
+          for(let i=0;i<draft.FM_METADATALIST.length;i++){
+            if(action.payload.name === draft.FM_METADATALIST[i].COLUMNNAME){
+              draft.FM_METADATALIST[i].VALUE = action.payload.value;
+              break;
+            }
+          }
+      });
+
       case CLICKROWDATA:
         return produce( state, draft =>{
           for(let key in action.rowData){
@@ -117,16 +177,13 @@ export default function Main(state = initialState, action :MainActionTypes) {
           });
 
       case CLICKSIDEBAR:
-        let FM_METADATALIST : any[] =[];
-        let dataListResult : any[] =[];
         try {
           FM_METADATALIST = (window as any).getFM_METADATA(action.payload);
           dataListResult = (window as any).getData(FM_METADATALIST);
         } catch (error) {
           
         }
-        
-        let columnListResult : any[] = [];
+
         for(let i=0 ; i < FM_METADATALIST.length;i++){
           columnListResult.push({ title : FM_METADATALIST[i].COLUMNNAME, field : FM_METADATALIST[i].COLUMNNAME });
         }
@@ -136,6 +193,7 @@ export default function Main(state = initialState, action :MainActionTypes) {
           draft.columnList = columnListResult;
           draft.dataList = dataListResult;
         });
+
       case CHECKEDSIDEBAR:
         return produce( state, draft =>{
           for(let i=0;i<draft.menuList.length;i++){
@@ -149,6 +207,7 @@ export default function Main(state = initialState, action :MainActionTypes) {
             }
           }
           });
+
       case READSIDEBAR:
         try {
           menuList = parseMenuList ((window as any).getFM_MENU('N') );

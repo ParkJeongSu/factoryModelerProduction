@@ -57,4 +57,9 @@ window.getData = function (action) {
   return ipcRenderer.sendSync('getData',action);
 }
 
+
+window.createData = function (action) {
+  return ipcRenderer.sendSync('createData',action);
+}
+
 /* Db */
