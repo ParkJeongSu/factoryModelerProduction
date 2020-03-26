@@ -44,7 +44,15 @@ const CLICKROWDATA = 'MAIN/CLICKROWDATA';
 const CHANGEFM_METADATALIST = 'MAIN/CHANGEFM_METADATALIST';
 
 const CREATE = 'MAIN/CREATE';
+const UPDATE = 'MAIN/UPDATE';
+const DELETE = 'MAIN/DELETE';
 
+  interface DeleteAction {
+    type : typeof DELETE;
+  }
+  interface UpdateAction {
+    type : typeof UPDATE;
+  }
   interface CreateAction {
     type : typeof CREATE;
   }
@@ -73,7 +81,18 @@ const CREATE = 'MAIN/CREATE';
       sidebar : SideBar;
     }
   }
-  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction|ChangeFm_MetaDataListAction|CreateAction;
+  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction|ChangeFm_MetaDataListAction|CreateAction|UpdateAction|DeleteAction;
+
+  function deleteData (){
+    return{
+      type : DELETE
+    }
+  }
+  function update (){
+    return{
+      type : UPDATE
+    }
+  }
 
   function create (){
     return{
@@ -117,7 +136,7 @@ const CREATE = 'MAIN/CREATE';
 
 
   export const actionCreators = {
-    readSideBar,checkedSideBar,clickSideBar,clickRowData,changeFm_MetaDataList,create
+    readSideBar,checkedSideBar,clickSideBar,clickRowData,changeFm_MetaDataList,create,update,deleteData
   };
 
   const initialState : MainState = {
@@ -139,13 +158,33 @@ export default function Main(state = initialState, action :MainActionTypes) {
     let dataListResult : any[] =[];
     let columnListResult : any[] = [];
     switch (action.type) {
+      case DELETE:
+        try {
+          dataListResult = (window as any).deleteData(state.FM_METADATALIST);
+        } catch (error) {
+          
+        }
+        return produce(state ,draft =>{
+          draft.dataList = dataListResult;
+        });
 
+      case UPDATE:
+        try {
+          dataListResult = (window as any).updateData(state.FM_METADATALIST);
+
+        } catch (error) {
+          
+        }
+        
+        return produce(state ,draft =>{
+          draft.dataList = dataListResult;
+        });
       case CREATE:
 
 
         try {
           dataListResult = (window as any).createData(state.FM_METADATALIST);
-          
+
         } catch (error) {
           
         }

@@ -121,7 +121,9 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
     };
   },[]);
   const handleCreate = () : void =>{
-    MainActions.create();
+    // MainActions.create();
+    // MainActions.update();
+    MainActions.deleteData();
   }
   const handlechangeFm_MetaDataList = (name : string, value :any) : void =>{
     MainActions.changeFm_MetaDataList(name , value);

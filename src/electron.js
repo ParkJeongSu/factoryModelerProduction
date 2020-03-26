@@ -403,3 +403,141 @@ ipcMain.on("createData", async (event,arg)=>{
 
 });
 
+
+
+ipcMain.on("updateData", async (event,arg)=>{
+
+  let connection;
+  let result;
+  let updateColumnList = [];
+  let conditionColumnList = [];
+  let columnList = [];
+  let dataList = [];
+  for(let i=0;i<arg.length;i++){
+    if("Y"=== arg[i].ISKEY){
+      conditionColumnList.push(arg[i].COLUMNNAME + ' = ' + arg[i].VALUE);
+    }
+    else{
+      updateColumnList.push(arg[i].COLUMNNAME + ' = ' + arg[i].VALUE);
+    }
+    columnList.push(arg[i].COLUMNNAME);
+  }
+  let updateSql = `UPDATE ${arg[0].TABLENAME} SET ${updateColumnList.join(',')} WHERE ${conditionColumnList.join(' AND ')} `;
+
+  try{
+    connection = await oracledb.getConnection(dbconfig);
+
+    result = await connection.execute(
+      updateSql
+      , {}
+      ,{autoCommit: true}
+    );
+    console.log(result);
+
+    result = await connection.execute(
+      `SELECT ${columnList.join(',')} FROM ${arg[0].TABLENAME}`
+      , {}
+      ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
+    );
+
+    
+
+    for(let i=0;i<result.rows.length;i++){
+      let data = {};
+      for(let j=0;j<arg.length;j++){
+        if(arg[j].DATATYPE == "DATE"){
+          data[arg[j].COLUMNNAME]=result.rows[i][arg[j].COLUMNNAME].toLocaleString();
+        }
+        else{
+          data[arg[j].COLUMNNAME]=result.rows[i][arg[j].COLUMNNAME];
+        }
+        
+      }
+      dataList.push(data);
+    }
+
+  }
+  catch(err){
+    console.error(err);
+  }
+  finally{
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+
+  event.returnValue = dataList;
+
+});
+
+
+
+
+
+
+ipcMain.on("deleteData", async (event,arg)=>{
+
+  let connection;
+  let result;
+  let conditionColumnList = [];
+  let columnList = [];
+  let dataList = [];
+  for(let i=0;i<arg.length;i++){
+    if("Y"=== arg[i].ISKEY){
+      conditionColumnList.push(arg[i].COLUMNNAME + ' = ' + arg[i].VALUE);
+    }
+    columnList.push(arg[i].COLUMNNAME);
+  }
+  let deleteSql = `DELETE FROM  ${arg[0].TABLENAME} WHERE ${conditionColumnList.join(' AND ')} `;
+
+  try{
+    connection = await oracledb.getConnection(dbconfig);
+
+    result = await connection.execute(
+      deleteSql
+      , {}
+      ,{autoCommit: true}
+    );
+    console.log(result);
+
+    result = await connection.execute(
+      `SELECT ${columnList.join(',')} FROM ${arg[0].TABLENAME}`
+      , {}
+      ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
+    );
+
+    for(let i=0;i<result.rows.length;i++){
+      let data = {};
+      for(let j=0;j<arg.length;j++){
+        if(arg[j].DATATYPE == "DATE"){
+          data[arg[j].COLUMNNAME]=result.rows[i][arg[j].COLUMNNAME].toLocaleString();
+        }
+        else{
+          data[arg[j].COLUMNNAME]=result.rows[i][arg[j].COLUMNNAME];
+        }
+        
+      }
+      dataList.push(data);
+    }
+
+  }
+  catch(err){
+    console.error(err);
+  }
+  finally{
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+
+  event.returnValue = dataList;
+
+});

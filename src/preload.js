@@ -61,5 +61,12 @@ window.getData = function (action) {
 window.createData = function (action) {
   return ipcRenderer.sendSync('createData',action);
 }
+window.updateData = function (action) {
+  return ipcRenderer.sendSync('updateData',action);
+}
+window.deleteData = function (action) {
+  return ipcRenderer.sendSync('deleteData',action);
+}
+
 
 /* Db */
