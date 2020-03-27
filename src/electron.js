@@ -5,6 +5,7 @@ const jsonfile = require('jsonfile');
 const { ipcMain } = require('electron');
 const oracledb = require('oracledb');
 const {produce} = require('immer');
+const XLSX = require('xlsx');
 
 const dbconfigPath = path.join(__dirname, "/../config/dbconfig.json");
 const toDoListPath = path.join(__dirname, "/../config/todoList.json");
@@ -546,18 +547,81 @@ ipcMain.on("deleteData", async (event,arg)=>{
 
 
 ipcMain.on("importExcel", async (event,arg)=>{
+  let result;
+  try {
 
-  dialog.showOpenDialog( {
-    properties: ['openFile'],
-    filters: [
-      { name: 'Excel', extensions: ['csv', 'xlsx'] }
-    ]
-  }).then(result => {
-    console.log(result.canceled)
-    console.log(result.filePaths)
-  }).catch(err => {
-    console.log(err)
-  })
+    result = dialog.showOpenDialogSync( {
+      properties: ['openFile'],
+      filters: [
+        { name: 'Excel', extensions: ['csv', 'xlsx'] }
+      ]
+    });
+
+    console.log(result);
+      
+      let wb = XLSX.readFile(result[0]);
+      let rowObj = XLSX.utils.sheet_to_json( wb.Sheets[ wb.SheetNames[0] ]  );
+      let range = XLSX.utils.decode_range(wb.Sheets[ wb.SheetNames[0] ]['!ref']);
+      let columnHeaderList = [];
+  
+      for (let i = 0; i < range.e.c+1 ; ++i) {
+        columnHeaderList[i] = wb.Sheets[wb.SheetNames[0]][`${XLSX.utils.encode_col(i)}1`].v;
+      }
+  
+      console.log(columnHeaderList);
+      for (let R = range.s.r; R <= range.e.r; ++R) {
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+          let cell_address = { c: C, r: R };
+          let cell_address_excel = XLSX.utils.encode_cell(cell_address);
+          let data = wb.Sheets[wb.SheetNames[0]][cell_address_excel];
+          console.log(data);
+        }
+      }
+  
+      console.log(rowObj);
+      throw "Parameter is not a number!";
+
+
+    // dialog.showOpenDialog( {
+    //   properties: ['openFile'],
+    //   filters: [
+    //     { name: 'Excel', extensions: ['csv', 'xlsx'] }
+    //   ]
+    // }).then(result => {
+  
+    //   console.log(result.canceled);
+    //   console.log(result.filePaths);
+    //   let wb = XLSX.readFile(result.filePaths[0]);
+    //   let rowObj = XLSX.utils.sheet_to_json( wb.Sheets[ wb.SheetNames[0] ]  );
+    //   let range = XLSX.utils.decode_range(wb.Sheets[ wb.SheetNames[0] ]['!ref']);
+    //   let columnHeaderList = [];
+  
+    //   for (let i = 0; i < range.e.c+1 ; ++i) {
+    //     columnHeaderList[i] = wb.Sheets[wb.SheetNames[0]][`${XLSX.utils.encode_col(i)}1`].v;
+    //   }
+  
+    //   console.log(columnHeaderList);
+    //   for (let R = range.s.r; R <= range.e.r; ++R) {
+    //     for (let C = range.s.c; C <= range.e.c; ++C) {
+    //       let cell_address = { c: C, r: R };
+    //       let cell_address_excel = XLSX.utils.encode_cell(cell_address);
+    //       let data = wb.Sheets[wb.SheetNames[0]][cell_address_excel];
+    //       console.log(data);
+    //     }
+    //   }
+  
+    //   console.log(rowObj);
+    //   throw "Parameter is not a number!";
+  
+    // }).catch(err => {
+    //   console.log(err)
+    // });
+  } catch (error) {
+    dialog.showErrorBox('Create Fail', 'test');
+  }
+  
+  // 다시 select 로 조회
+  // 해서 결과 반환
   
   event.returnValue = true;
 
