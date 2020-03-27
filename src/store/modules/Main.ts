@@ -47,6 +47,13 @@ const CREATE = 'MAIN/CREATE';
 const UPDATE = 'MAIN/UPDATE';
 const DELETE = 'MAIN/DELETE';
 
+
+const IMPORTEXCEL = 'MAIN/IMPORTEXCEL';
+
+  interface ImportExcelAction {
+    type : typeof IMPORTEXCEL;
+  }
+
   interface DeleteAction {
     type : typeof DELETE;
   }
@@ -81,8 +88,13 @@ const DELETE = 'MAIN/DELETE';
       sidebar : SideBar;
     }
   }
-  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction|ChangeFm_MetaDataListAction|CreateAction|UpdateAction|DeleteAction;
+  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction|ChangeFm_MetaDataListAction|CreateAction|UpdateAction|DeleteAction|ImportExcelAction;
 
+  function importExcel (){
+    return {
+      type : IMPORTEXCEL
+    }
+  }
   function deleteData (){
     return{
       type : DELETE
@@ -136,7 +148,7 @@ const DELETE = 'MAIN/DELETE';
 
 
   export const actionCreators = {
-    readSideBar,checkedSideBar,clickSideBar,clickRowData,changeFm_MetaDataList,create,update,deleteData
+    readSideBar,checkedSideBar,clickSideBar,clickRowData,changeFm_MetaDataList,create,update,deleteData,importExcel
   };
 
   const initialState : MainState = {
@@ -158,6 +170,16 @@ export default function Main(state = initialState, action :MainActionTypes) {
     let dataListResult : any[] =[];
     let columnListResult : any[] = [];
     switch (action.type) {
+
+      case IMPORTEXCEL:
+        try {
+          dataListResult = (window as any).importExcel(state.FM_METADATALIST);
+        } catch (error) {
+          console.log(error);
+        }
+        return state;
+
+
       case DELETE:
         try {
           dataListResult = (window as any).deleteData(state.FM_METADATALIST);

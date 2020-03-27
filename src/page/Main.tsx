@@ -120,6 +120,9 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
         console.log('Main unMount 실행');
     };
   },[]);
+  const importExcel = () : void =>{
+    MainActions.importExcel();
+  }
   const handleCreate = () : void =>{
     // MainActions.create();
     // MainActions.update();
@@ -187,7 +190,8 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
           clickRowData ={handleClickRowData} 
           FM_METADATALIST={FM_METADATALIST}
           handleOnChange = {handlechangeFm_MetaDataList}
-          handleCreate = {handleCreate} 
+          handleCreate = {handleCreate}
+          importExcel = {importExcel}
         />
       </div>
     );

@@ -1,3 +1,5 @@
+const { dialog } = require('electron').remote;
+
 // All of the Node.js APIs are available in the preload process.
 // It has the same sandbox as a Chrome extension.
 window.addEventListener('DOMContentLoaded', () => {
@@ -69,4 +71,7 @@ window.deleteData = function (action) {
 }
 
 
+window.importExcel = function (action) {
+  return ipcRenderer.sendSync('importExcel',action);;
+}
 /* Db */

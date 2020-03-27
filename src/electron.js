@@ -1,5 +1,5 @@
 // Modules to control application life and create native browser window
-const {app, BrowserWindow} = require('electron');
+const {app, BrowserWindow,dialog } = require('electron');
 const path = require('path');
 const jsonfile = require('jsonfile');
 const { ipcMain } = require('electron');
@@ -36,13 +36,13 @@ function createWindow () {
   BrowserWindow.addDevToolsExtension(
     path.join('C://Users/ParkJeongSu/AppData/Local/Google/Chrome/User Data/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0')
   )
-  
+
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', createWindow,)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -539,5 +539,26 @@ ipcMain.on("deleteData", async (event,arg)=>{
   }
 
   event.returnValue = dataList;
+
+});
+
+
+
+
+ipcMain.on("importExcel", async (event,arg)=>{
+
+  dialog.showOpenDialog( {
+    properties: ['openFile'],
+    filters: [
+      { name: 'Excel', extensions: ['csv', 'xlsx'] }
+    ]
+  }).then(result => {
+    console.log(result.canceled)
+    console.log(result.filePaths)
+  }).catch(err => {
+    console.log(err)
+  })
+  
+  event.returnValue = true;
 
 });

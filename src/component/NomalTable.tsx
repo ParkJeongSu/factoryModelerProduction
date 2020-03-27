@@ -1,19 +1,36 @@
 ﻿import * as React from 'react';
 import MaterialTable from 'material-table';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 interface NomalTableProps  {
 	columnList? : [];
   dataList? : [];
   clickRowData : (rowData : any) => void;
+  importExcel : () => void ;
   };
   
-const NomalTable = ({columnList, dataList,clickRowData} : NomalTableProps)=>{
+const NomalTable = ({columnList, dataList,clickRowData,importExcel} : NomalTableProps)=>{
   const [selectedRow,setselectedRow] = React.useState(null);
   let cList = JSON.parse(JSON.stringify(columnList));
   let dList = JSON.parse(JSON.stringify(dataList)); 
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   return (
-    <MaterialTable
+    <React.Fragment>
+      <MaterialTable
       title="Data List"
       columns={cList}
       data={dList}
@@ -54,7 +71,11 @@ const NomalTable = ({columnList, dataList,clickRowData} : NomalTableProps)=>{
           icon: 'vertical_align_top',
           tooltip: 'Import',
           isFreeAction: true,
-          onClick: (event) => alert("You want to add a new row")
+          onClick: (event) => {
+            importExcel();
+            // alert("You want to add a new row");
+            // handleClickOpen();
+          }
         }
       ]}
       onRowClick = {
@@ -65,6 +86,29 @@ const NomalTable = ({columnList, dataList,clickRowData} : NomalTableProps)=>{
         }
       }
     />
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Use Google's location service?"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Let Google help apps determine location. This means sending anonymous location data to
+            Google, even when no apps are running.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Disagree
+          </Button>
+          <Button onClick={handleClose} color="primary" autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </React.Fragment>
   )
 }
 export default NomalTable;
