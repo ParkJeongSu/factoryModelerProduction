@@ -539,9 +539,6 @@ ipcMain.on("deleteData", async (event,arg)=>{
 
 });
 
-
-
-
 ipcMain.on("importExcel", async (event,arg,option)=>{
   let connection;
   let result;
@@ -598,27 +595,17 @@ ipcMain.on("importExcel", async (event,arg,option)=>{
       }
     }
 
-
-
-  } catch (error) {
-    dialog.showErrorBox('INSERT FAIL', 'test');
-  }
-
-  
-  for(let i=0;i<rowObj.length;i++){
-    let tempData =[];
-    for(let j=0;j<columnOrder.length;j++){
-      tempData.push(rowObj[i][columnOrder[j]]);
+    for(let i=0;i<rowObj.length;i++){
+      let tempData =[];
+      for(let j=0;j<columnOrder.length;j++){
+        tempData.push(rowObj[i][columnOrder[j]]);
+      }
+      insertSqlData += ` INTO ${tableName} ( ${columnOrder.join(',')} ) VALUES ( ${tempData.join(',')} ) ` 
     }
-    insertSqlData += ` INTO ${tableName} ( ${columnOrder.join(',')} ) VALUES ( ${tempData.join(',')} ) ` 
-  }
-  
 
-  insertSql = `INSERT ALL `;
-  insertSql += insertSqlData;
-  insertSql+= ` SELECT * FROM DUAL `;
-
-  try{
+    insertSql = `INSERT ALL `;
+    insertSql += insertSqlData;
+    insertSql+= ` SELECT * FROM DUAL `;
     connection = await oracledb.getConnection(dbconfig);
 
     result = await connection.execute(
@@ -626,7 +613,21 @@ ipcMain.on("importExcel", async (event,arg,option)=>{
       , {}
       ,{autoCommit: true}
     );
-    console.log(result);
+
+  } catch (error) {
+    dialog.showErrorBox('INSERT FAIL', error);
+  }
+  finally{
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
+
+  try {
 
     result = await connection.execute(
       `SELECT ${columnOrder.join(',')} FROM ${tableName}`
@@ -649,10 +650,8 @@ ipcMain.on("importExcel", async (event,arg,option)=>{
       }
       dataList.push(data);
     }
-
-  }
-  catch(err){
-    console.error(err);
+  } catch (error) {
+    
   }
   finally{
     if (connection) {
@@ -663,8 +662,7 @@ ipcMain.on("importExcel", async (event,arg,option)=>{
       }
     }
   }
-  
-  
+
   event.returnValue = dataList;
 
 });
