@@ -71,7 +71,7 @@ window.deleteData = function (action) {
 }
 
 
-window.importExcel = function (action) {
-  return ipcRenderer.sendSync('importExcel',action);;
+window.importExcel = function (action,option) {
+  return ipcRenderer.sendSync('importExcel',action,option);;
 }
 /* Db */

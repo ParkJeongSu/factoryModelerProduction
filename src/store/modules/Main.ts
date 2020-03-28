@@ -173,11 +173,13 @@ export default function Main(state = initialState, action :MainActionTypes) {
 
       case IMPORTEXCEL:
         try {
-          dataListResult = (window as any).importExcel(state.FM_METADATALIST);
+          dataListResult = (window as any).importExcel(state.FM_METADATALIST,'Y');
         } catch (error) {
           console.log(error);
         }
-        return state;
+        return produce(state ,draft =>{
+          draft.dataList = dataListResult;
+        });
 
 
       case DELETE:

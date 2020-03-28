@@ -476,10 +476,6 @@ ipcMain.on("updateData", async (event,arg)=>{
 });
 
 
-
-
-
-
 ipcMain.on("deleteData", async (event,arg)=>{
 
   let connection;
@@ -546,83 +542,129 @@ ipcMain.on("deleteData", async (event,arg)=>{
 
 
 
-ipcMain.on("importExcel", async (event,arg)=>{
+ipcMain.on("importExcel", async (event,arg,option)=>{
+  let connection;
   let result;
-  try {
+  let dataList=[];
+  let columnOrder = [];
+  let FM_METADATALIST = arg;
+  let tableName = FM_METADATALIST[0].TABLENAME;
+  let rowObj;
+  let insertSql='';
+  let insertSqlData = '';
 
+  for(let i=0;i<FM_METADATALIST.length;i++){
+    columnOrder.push(FM_METADATALIST[i].COLUMNNAME);
+  }
+
+  try {
     result = dialog.showOpenDialogSync( {
       properties: ['openFile'],
       filters: [
         { name: 'Excel', extensions: ['csv', 'xlsx'] }
       ]
     });
-
-    console.log(result);
       
-      let wb = XLSX.readFile(result[0]);
-      let rowObj = XLSX.utils.sheet_to_json( wb.Sheets[ wb.SheetNames[0] ]  );
-      let range = XLSX.utils.decode_range(wb.Sheets[ wb.SheetNames[0] ]['!ref']);
-      let columnHeaderList = [];
-  
-      for (let i = 0; i < range.e.c+1 ; ++i) {
-        columnHeaderList[i] = wb.Sheets[wb.SheetNames[0]][`${XLSX.utils.encode_col(i)}1`].v;
+    let wb = XLSX.readFile(result[0]);
+    rowObj = XLSX.utils.sheet_to_json( wb.Sheets[ wb.SheetNames[0] ]  );
+    let range = XLSX.utils.decode_range(wb.Sheets[ wb.SheetNames[0] ]['!ref']);
+    let columnHeaderList = [];
+
+    for (let i = 0; i < range.e.c+1 ; ++i) {
+      columnHeaderList[i] = wb.Sheets[wb.SheetNames[0]][`${XLSX.utils.encode_col(i)}1`].v;
+    }
+
+    console.log(columnHeaderList);
+    if(columnHeaderList.length !== FM_METADATALIST.length){
+      throw `Import Data Header Count != ${tableName} Header Count`;
+    }
+    for(let i=0;i<columnHeaderList.length;i++){
+      if(columnHeaderList[i] !== FM_METADATALIST[i].COLUMNNAME){
+        throw `Import Data columnName [${columnHeaderList[i]}] != Table ColumnName ${FM_METADATALIST[i].COLUMNNAME}`;
       }
-  
-      console.log(columnHeaderList);
-      for (let R = range.s.r; R <= range.e.r; ++R) {
-        for (let C = range.s.c; C <= range.e.c; ++C) {
-          let cell_address = { c: C, r: R };
-          let cell_address_excel = XLSX.utils.encode_cell(cell_address);
-          let data = wb.Sheets[wb.SheetNames[0]][cell_address_excel];
-          console.log(data);
+    }
+
+    for(let C = range.s.c ; C<=range.e.c;++C){
+      for(let R =range.s.r+1 ; R<=range.e.r;++R){
+        let cell_address = { c: C, r: R };
+        let cell_address_excel = XLSX.utils.encode_cell(cell_address);
+        let data = wb.Sheets[wb.SheetNames[0]][cell_address_excel];
+        if(FM_METADATALIST[C].DATATYPE === 'VARCHAR2' && data.t !== 's' ){
+          throw `import Data Type is varchar2 but DataType ${FM_METADATALIST[C].DATATYPE} of ${FM_METADATALIST[C].COLUMNNAME} `;
+        }
+        if(FM_METADATALIST[C].DATATYPE === 'NUMBER' && data.t !== 'n'){
+          throw `import Data Type is varchar2 but DataType ${FM_METADATALIST[C].DATATYPE} of ${FM_METADATALIST[C].COLUMNNAME} `;
         }
       }
-  
-      console.log(rowObj);
-      throw "Parameter is not a number!";
+    }
 
 
-    // dialog.showOpenDialog( {
-    //   properties: ['openFile'],
-    //   filters: [
-    //     { name: 'Excel', extensions: ['csv', 'xlsx'] }
-    //   ]
-    // }).then(result => {
-  
-    //   console.log(result.canceled);
-    //   console.log(result.filePaths);
-    //   let wb = XLSX.readFile(result.filePaths[0]);
-    //   let rowObj = XLSX.utils.sheet_to_json( wb.Sheets[ wb.SheetNames[0] ]  );
-    //   let range = XLSX.utils.decode_range(wb.Sheets[ wb.SheetNames[0] ]['!ref']);
-    //   let columnHeaderList = [];
-  
-    //   for (let i = 0; i < range.e.c+1 ; ++i) {
-    //     columnHeaderList[i] = wb.Sheets[wb.SheetNames[0]][`${XLSX.utils.encode_col(i)}1`].v;
-    //   }
-  
-    //   console.log(columnHeaderList);
-    //   for (let R = range.s.r; R <= range.e.r; ++R) {
-    //     for (let C = range.s.c; C <= range.e.c; ++C) {
-    //       let cell_address = { c: C, r: R };
-    //       let cell_address_excel = XLSX.utils.encode_cell(cell_address);
-    //       let data = wb.Sheets[wb.SheetNames[0]][cell_address_excel];
-    //       console.log(data);
-    //     }
-    //   }
-  
-    //   console.log(rowObj);
-    //   throw "Parameter is not a number!";
-  
-    // }).catch(err => {
-    //   console.log(err)
-    // });
+
   } catch (error) {
-    dialog.showErrorBox('Create Fail', 'test');
+    dialog.showErrorBox('INSERT FAIL', 'test');
+  }
+
+  
+  for(let i=0;i<rowObj.length;i++){
+    let tempData =[];
+    for(let j=0;j<columnOrder.length;j++){
+      tempData.push(rowObj[i][columnOrder[j]]);
+    }
+    insertSqlData += ` INTO ${tableName} ( ${columnOrder.join(',')} ) VALUES ( ${tempData.join(',')} ) ` 
   }
   
-  // 다시 select 로 조회
-  // 해서 결과 반환
+
+  insertSql = `INSERT ALL `;
+  insertSql += insertSqlData;
+  insertSql+= ` SELECT * FROM DUAL `;
+
+  try{
+    connection = await oracledb.getConnection(dbconfig);
+
+    result = await connection.execute(
+      insertSql
+      , {}
+      ,{autoCommit: true}
+    );
+    console.log(result);
+
+    result = await connection.execute(
+      `SELECT ${columnOrder.join(',')} FROM ${tableName}`
+      , {}
+      ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
+    );
+
+    dataList = [];
+
+    for(let i=0;i<result.rows.length;i++){
+      let data = {};
+      for(let j=0;j<arg.length;j++){
+        if(arg[j].DATATYPE == "DATE"){
+          data[arg[j].COLUMNNAME]=result.rows[i][arg[j].COLUMNNAME].toLocaleString();
+        }
+        else{
+          data[arg[j].COLUMNNAME]=result.rows[i][arg[j].COLUMNNAME];
+        }
+        
+      }
+      dataList.push(data);
+    }
+
+  }
+  catch(err){
+    console.error(err);
+  }
+  finally{
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  }
   
-  event.returnValue = true;
+  
+  event.returnValue = dataList;
 
 });
