@@ -339,69 +339,141 @@ ipcMain.on("getData", async (event,arg)=>{
 });
 
 
+async function validationCheck(connection, FM_METADATALIST,crudFlag){
+  let tableName;
+  let result;
+  let forResult;
+  let bindObj = {};
+
+  if('CREATE'===crudFlag){
+    tableName ='FM_CREATE_CONSTRAINT';
+  }
+  else if('UPDATE'===crudFlag){
+    tableName ='FM_UPDATE_CONSTRAINT';
+  }else if('DELETE'===crudFlag){
+    tableName ='FM_DELETE_CONSTRAINT';
+  }
+  // SELECT ValidationList
+  let selectQuery = `SELECT TABLENAME,VALIDATIONQUERY,MESSAGE FROM ${tableName}`;
+  try {
+    result = await connection.execute(
+      selectQuery
+      , {}
+      ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
+    );
+    for(let i=0;i<result.rows.length;i++){
+      bindObj = {};
+      // result.rows[i]['VALIDATIONQUERY'] 를 치환하는 작업을 먼저 해준뒤 해당 쿼리 실행
+      //includes
+      for(let j=0;j<FM_METADATALIST.length;j++){
+        if(result.rows[i]['VALIDATIONQUERY'].includes(':'+FM_METADATALIST[j].COLUMNNAME)){
+          if(FM_METADATALIST[j].DATATYPE === 'VARCHAR2'){
+            bindObj[FM_METADATALIST[j].COLUMNNAME] = FM_METADATALIST[j].VALUE;
+          }
+          else if(FM_METADATALIST[j].DATATYPE === 'NUMBER'){
+            bindObj[FM_METADATALIST[j].COLUMNNAME] = Number(FM_METADATALIST[j].VALUE);
+          }
+        }
+      }
+      forResult =  await connection.execute(
+        result.rows[i]['VALIDATIONQUERY']
+        , bindObj
+        ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
+      );
+      if(forResult.rows.length!==0){
+        throw result.rows[i]['MESSAGE'];
+      }
+    }
+
+  } catch (error) {
+    return error;
+  }
+  return '';
+}
 
 
-
-ipcMain.on("createData", async (event,arg)=>{
+ipcMain.on("createData", async (event,FM_METADATALIST)=>{
 
   let connection;
   let result;
   let columnList = [];
   let dataList = [];
-  for(let i=0;i<arg.length;i++){
-    columnList.push(arg[i].COLUMNNAME);
-    dataList.push(arg[i].VALUE);
-  }
-  let insertSql = `INSERT INTO ${arg[0].TABLENAME} ( ${columnList.join(',')} ) VALUES ( ${dataList.join(',')} )`;
-
-  try{
+  let bindList =[];
+  try {
     connection = await oracledb.getConnection(dbconfig);
+  } catch (error) {
+    // connect Fail Message
+    dialog.showErrorBox('INSERT FAIL', error);
+  }
+  if(connection){
 
-    result = await connection.execute(
-      insertSql
-      , {}
-      ,{autoCommit: true}
-    );
-    console.log(result);
-
-    result = await connection.execute(
-      `SELECT ${columnList.join(',')} FROM ${arg[0].TABLENAME}`
-      , {}
-      ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
-    );
-
-    dataList = [];
-
-    for(let i=0;i<result.rows.length;i++){
-      let data = {};
-      for(let j=0;j<arg.length;j++){
-        if(arg[j].DATATYPE == "DATE"){
-          data[arg[j].COLUMNNAME]=result.rows[i][arg[j].COLUMNNAME].toLocaleString();
-        }
-        else{
-          data[arg[j].COLUMNNAME]=result.rows[i][arg[j].COLUMNNAME];
-        }
-        
-      }
-      dataList.push(data);
+    for(let i=0;i<FM_METADATALIST.length;i++){
+      columnList.push(FM_METADATALIST[i].COLUMNNAME);
+      bindList.push(FM_METADATALIST[i].VALUE);
     }
-
-  }
-  catch(err){
-    console.error(err);
-  }
-  finally{
-    if (connection) {
-      try {
-        await connection.close();
-      } catch (err) {
+    // validation
+    let validationErrorMessage = await validationCheck(connection,FM_METADATALIST,'CREATE');
+    // validation Sucess
+    if(validationErrorMessage===''){
+      let insertSql = `INSERT INTO ${FM_METADATALIST[0].TABLENAME} ( ${columnList.join(',')} ) VALUES ( ${bindList.join(',')} )`;
+      try{
+        result = await connection.execute(
+          insertSql
+          , {}
+          ,{autoCommit: true}
+        );
+      }
+      catch(err){
         console.error(err);
+        dialog.showErrorBox('INSERT FAIL', err);
+      }
+
+    }
+    // validation Fail
+    else if(validationErrorMessage!==''){
+      // Create Error Message
+      dialog.showErrorBox('INSERT FAIL', validationErrorMessage);
+    }
+
+    try {
+      result = await connection.execute(
+        `SELECT ${columnList.join(',')} FROM ${FM_METADATALIST[0].TABLENAME}`
+        , {}
+        ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
+      );
+
+      for(let i=0;i<result.rows.length;i++){
+        let data = {};
+        for(let j=0;j<FM_METADATALIST.length;j++){
+          if(FM_METADATALIST[j].DATATYPE == "DATE"){
+            data[FM_METADATALIST[j].COLUMNNAME]=result.rows[i][FM_METADATALIST[j].COLUMNNAME].toLocaleString();
+          }
+          else{
+            data[FM_METADATALIST[j].COLUMNNAME]=result.rows[i][FM_METADATALIST[j].COLUMNNAME];
+          }
+          
+        }
+        dataList.push(data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+    finally{
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (err) {
+          console.error(err);
+        }
       }
     }
+
+
+    event.returnValue = dataList;
   }
-
-  event.returnValue = dataList;
-
+  else{
+    event.returnValue = dataList;
+  }
 });
 
 
