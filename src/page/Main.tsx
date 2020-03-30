@@ -124,8 +124,8 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
     MainActions.importExcel();
   }
   const handleCreate = () : void =>{
-    MainActions.create();
-    // MainActions.update();
+    // MainActions.create();
+    MainActions.update();
     // MainActions.deleteData();
   }
   const handlechangeFm_MetaDataList = (name : string, value :any) : void =>{
