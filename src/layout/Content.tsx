@@ -24,12 +24,37 @@ interface ContentProps  {
   dataList? : [];
   FM_METADATALIST : FM_METADATA[];
   handleOnChange : (name:any ,value : any) => void;
-  handleCreate : () => void;
+  
   importExcel : () => void ;
   readSelectList : (FM_METADATA : FM_METADATA) => void;
+  handleCreate : () => void;
+  handleUpdate : () => void;
+  handleDelete : () => void;
+  handleCRUDFlag : (CRUDFlag :string) =>void;
+  crudFlag ?  : string;
+
   };
 
-const Content = ({ classes , todoList,create,checked,deleted ,read,columnList,dataList,clickRowData,FM_METADATALIST,handleOnChange,handleCreate,importExcel,readSelectList} : ContentProps)=> {
+const Content = ({ 
+  classes ,
+  todoList,
+  create,
+  checked,
+  deleted ,
+  read,
+  columnList
+  ,dataList,
+  clickRowData,
+  FM_METADATALIST,
+  handleOnChange,
+  handleCreate,
+  importExcel,
+  readSelectList,
+  handleUpdate,
+  handleDelete,
+  handleCRUDFlag,
+  crudFlag
+} : ContentProps)=> {
 
     return (
       <main className={classes.content}>
@@ -42,7 +67,16 @@ const Content = ({ classes , todoList,create,checked,deleted ,read,columnList,da
               <NomalTable columnList={columnList} dataList = {dataList} clickRowData= {clickRowData} importExcel = {importExcel}/>
             </Grid>
             <Grid item xs={12} md={4} lg={3}>
-              <DetailInfo FM_METADATALIST={FM_METADATALIST} handleOnChange ={handleOnChange} handleCreate={handleCreate} readSelectList = {readSelectList}/>
+              <DetailInfo 
+              FM_METADATALIST={FM_METADATALIST} 
+              handleOnChange ={handleOnChange} 
+              handleCreate={handleCreate} 
+              readSelectList = {readSelectList}
+              handleUpdate = {handleUpdate}
+              handleDelete ={handleDelete}
+              handleCRUDFlag = {handleCRUDFlag} 
+              crudFlag = {crudFlag}
+              />
             </Grid>
           </Grid>
           {/* Nomal Table */}

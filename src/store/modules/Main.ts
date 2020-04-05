@@ -57,9 +57,15 @@ const IMPORTEXCEL = 'MAIN/IMPORTEXCEL';
 
 const READSELECTLIST = 'MAIN/READSELECTLIST';
 
+const CHANGECRUDFLAG = 'MAIN/CHANGECRUDFLAG';
+
   interface ReadSelectListAction{
     type : typeof READSELECTLIST;
     FM_METADATA : FM_METADATA;
+  }
+  interface ChangeCRUDFlagAction{
+    type : typeof CHANGECRUDFLAG;
+    CRUDFLAG : string;
   }
   interface ImportExcelAction {
     type : typeof IMPORTEXCEL;
@@ -99,8 +105,14 @@ const READSELECTLIST = 'MAIN/READSELECTLIST';
       sidebar : SideBar;
     }
   }
-  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction|ChangeFm_MetaDataListAction|CreateAction|UpdateAction|DeleteAction|ImportExcelAction|ReadSelectListAction;
+  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction|ChangeFm_MetaDataListAction|CreateAction|UpdateAction|DeleteAction|ImportExcelAction|ReadSelectListAction|ChangeCRUDFlagAction;
 
+  function changeCRUDFlag (CRUDFLAG : string){
+    return {
+      type : CHANGECRUDFLAG,
+      CRUDFLAG : CRUDFLAG
+    }
+  }
   function readSelectList (FM_METADATA : FM_METADATA){
     return {
       type : READSELECTLIST,
@@ -165,7 +177,7 @@ const READSELECTLIST = 'MAIN/READSELECTLIST';
 
 
   export const actionCreators = {
-    readSideBar,checkedSideBar,clickSideBar,clickRowData,changeFm_MetaDataList,create,update,deleteData,importExcel,readSelectList
+    readSideBar,checkedSideBar,clickSideBar,clickRowData,changeFm_MetaDataList,create,update,deleteData,importExcel,readSelectList,changeCRUDFlag
   };
 
   const initialState : MainState = {
@@ -187,20 +199,19 @@ export default function Main(state = initialState, action :MainActionTypes) {
     let dataListResult : any[] =[];
     let columnListResult : any[] = [];
     switch (action.type) {
-
+      case CHANGECRUDFLAG:
+        return produce(state,draft=>{
+          draft.crudFlag = action.CRUDFLAG;
+        });
       case READSELECTLIST:
-
         try {
           FM_METADATALIST = (window as any).getFM_METADATASELECTLIST(action.FM_METADATA,state.FM_METADATALIST);
         } catch (error) {
           
         }
-
         return produce(state ,draft =>{
           draft.FM_METADATALIST = FM_METADATALIST;
         });
-
-
       case IMPORTEXCEL:
         try {
           dataListResult = (window as any).importExcel(state.FM_METADATALIST,'Y');
@@ -209,9 +220,8 @@ export default function Main(state = initialState, action :MainActionTypes) {
         }
         return produce(state ,draft =>{
           draft.dataList = dataListResult;
+          draft.crudFlag ='READ';
         });
-
-
       case DELETE:
         try {
           dataListResult = (window as any).deleteData(state.FM_METADATALIST);
@@ -220,6 +230,7 @@ export default function Main(state = initialState, action :MainActionTypes) {
         }
         return produce(state ,draft =>{
           draft.dataList = dataListResult;
+          draft.crudFlag ='READ';
         });
 
       case UPDATE:
@@ -232,19 +243,18 @@ export default function Main(state = initialState, action :MainActionTypes) {
         
         return produce(state ,draft =>{
           draft.dataList = dataListResult;
+          draft.crudFlag ='READ';
         });
       case CREATE:
-
-
         try {
           dataListResult = (window as any).createData(state.FM_METADATALIST);
 
         } catch (error) {
           
         }
-        
         return produce(state ,draft =>{
           draft.dataList = dataListResult;
+          draft.crudFlag ='READ';
         });
 
       case CHANGEFM_METADATALIST:
@@ -267,6 +277,7 @@ export default function Main(state = initialState, action :MainActionTypes) {
               }
             }
           }
+          draft.crudFlag ='READ';
           });
 
       case CLICKSIDEBAR:
@@ -285,6 +296,7 @@ export default function Main(state = initialState, action :MainActionTypes) {
           draft.FM_METADATALIST = FM_METADATALIST;
           draft.columnList = columnListResult;
           draft.dataList = dataListResult;
+          draft.crudFlag ='READ';
         });
 
       case CHECKEDSIDEBAR:

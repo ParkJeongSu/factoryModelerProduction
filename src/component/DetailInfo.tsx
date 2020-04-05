@@ -18,11 +18,26 @@ interface DetailInfoProps {
   FM_METADATALIST? : FM_METADATA[];
   handleOnChange : (name:any ,value : any) => void;
   crudFlag ?  : string;
-  handleCreate : () => void;
+  
   readSelectList : (FM_METADATA : FM_METADATA) => void;
+  handleCreate : () => void;
+  handleUpdate : () => void;
+  handleDelete : () => void;
+  handleCRUDFlag : (CRUDFlag :string) =>void;
+
 };
 
-const DetailInfo = ( {FM_METADATALIST,handleOnChange,crudFlag,handleCreate,readSelectList}  : DetailInfoProps ) => {
+const DetailInfo = ( {
+  FM_METADATALIST,
+  handleOnChange,
+  crudFlag,
+  handleCreate,
+  readSelectList,
+  handleUpdate,
+  handleDelete,
+  handleCRUDFlag
+  
+}  : DetailInfoProps ) => {
     React.useEffect(()=>{
       console.log('DetailInfo Mount 실행');
         return ()=>{
@@ -34,7 +49,6 @@ const DetailInfo = ( {FM_METADATALIST,handleOnChange,crudFlag,handleCreate,readS
     <form>
     <Paper>
       <Grid container spacing={1}>
-
             <Grid item xs={12} md={12} lg={12}>
               <Typography variant="h4" align ='center'>
                 Detail Info
@@ -47,7 +61,12 @@ const DetailInfo = ( {FM_METADATALIST,handleOnChange,crudFlag,handleCreate,readS
                 type="submit"
                 fullWidth
                 variant="contained"
-                color="primary">
+                color="primary"
+                onClick = {(e)=>{
+                  e.preventDefault();
+                  handleCRUDFlag('CREATE');
+                }}
+                >
                 Create
               </Button>
             </Grid>
@@ -56,7 +75,12 @@ const DetailInfo = ( {FM_METADATALIST,handleOnChange,crudFlag,handleCreate,readS
                 type="submit"
                 fullWidth
                 variant="contained"
-                color="primary">
+                color="primary"
+                onClick = {(e)=>{
+                  e.preventDefault();
+                  handleCRUDFlag('UPDATE');
+                }}
+                >
                 Modifiy
               </Button>
             </Grid>
@@ -65,22 +89,16 @@ const DetailInfo = ( {FM_METADATALIST,handleOnChange,crudFlag,handleCreate,readS
                 type="submit"
                 fullWidth
                 variant="contained"
-                color="primary">
+                color="primary"
+                onClick = {(e)=>{
+                  e.preventDefault();
+                  handleCRUDFlag('DELETE');
+                }}
+                >
                 Delete
               </Button>
             </Grid>
             <CssBaseline/>
-
-            {/* { FM_METADATALIST!==null && FM_METADATALIST.map((item) =>{
-              if(item.INPUTTYPE===null|| item.INPUTTYPE==="TEXT"){
-                return (<DetailTextField key={item.COLUMNNAME} FM_METADATA = {item}/>);
-              }
-              else if(item.INPUTTYPE==="SELECT"){
-                return (<DetailSelect/>);
-              }else if(item.INPUTTYPE==="AUTOCOMPLETE"){
-                return (<DetailAutocomplete/>);
-              }
-            }) } */}
 
             { FM_METADATALIST!==null && FM_METADATALIST.map((item) =>{
               if(item.INPUTTYPE===null|| item.INPUTTYPE==="TEXT"){
@@ -89,6 +107,7 @@ const DetailInfo = ( {FM_METADATALIST,handleOnChange,crudFlag,handleCreate,readS
                   key={item.COLUMNNAME} 
                   FM_METADATA = {item} 
                   handleOnChange ={handleOnChange}
+                  crudFlag = {crudFlag}
                   />);
               }
               else if(item.INPUTTYPE==="SELECT"){
@@ -98,6 +117,7 @@ const DetailInfo = ( {FM_METADATALIST,handleOnChange,crudFlag,handleCreate,readS
                 FM_METADATA = {item} 
                 handleOnChange ={handleOnChange}
                 readSelectList = {readSelectList}
+                crudFlag = {crudFlag}
                 />);
               }else if(item.INPUTTYPE==="AUTOCOMPLETE"){
                 return (<DetailAutocomplete/>);
@@ -114,8 +134,20 @@ const DetailInfo = ( {FM_METADATALIST,handleOnChange,crudFlag,handleCreate,readS
                 fullWidth
                 variant="contained"
                 color="primary"
-                onClick = {(e)=>{ e.preventDefault(); handleCreate(); }}
-                // disabled = {crudFlag === "UPDATE" || crudFlag!== "CREATE" ? true : false}
+                onClick = {(e)=>{ 
+                  e.preventDefault(); 
+                  if(crudFlag === 'CREATE'){
+                    handleCreate();
+                  }
+                  else if(crudFlag === 'UPDATE'){
+                    handleUpdate();
+                  }
+                  else if(crudFlag === 'DELETE'){
+                    handleDelete();
+                  }
+                  
+                }}
+                disabled = {crudFlag === 'READ'  ? true : false}
                 >
                 OK
               </Button>

@@ -618,11 +618,13 @@ ipcMain.on("deleteData", async (event,FM_METADATALIST)=>{
     if(validationErrorMessage==='')
     {    
       for(let i=0;i<FM_METADATALIST.length;i++){
-        if("Y"=== FM_METADATALIST[i].ISKEY){
-          conditionColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
-        }
+        // 삭제시 키로 삭제 해야하는가? 아니면 그 데이터 조건을 삭제해야하는가?
+        // if("Y"=== FM_METADATALIST[i].ISKEY){
+        //   conditionColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
+        // }
+        conditionColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
       }
-      let deleteSql = `DELETE FROM  ${arg[0].TABLENAME} WHERE ${conditionColumnList.join(' AND ')} `;
+      let deleteSql = `DELETE FROM  ${FM_METADATALIST[0].TABLENAME} WHERE ${conditionColumnList.join(' AND ')} `;
       result = await connection.execute(
         deleteSql
         , {}

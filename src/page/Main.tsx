@@ -108,9 +108,10 @@ interface MainProps {
   columnList? : [];
   dataList? : [];
   FM_METADATALIST : FM_METADATA[];
+  crudFlag? : string;
 }
 
-const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,columnList,dataList,FM_METADATALIST} : MainProps)=> {
+const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,columnList,dataList,FM_METADATALIST,crudFlag} : MainProps)=> {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   React.useEffect(()=>{
@@ -120,6 +121,9 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
         console.log('Main unMount 실행');
     };
   },[]);
+  const changeCRUDFlag = (CRUDFlag : string) : void =>{
+    MainActions.changeCRUDFlag(CRUDFlag);
+  }
   const readSelectList = (FM_METADATA : FM_METADATA) : void =>{
     MainActions.readSelectList(FM_METADATA);
   }
@@ -127,9 +131,13 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
     MainActions.importExcel();
   }
   const handleCreate = () : void =>{
-    // MainActions.create();
+    MainActions.create();
+  }
+  const handleUpdate = () : void =>{
     MainActions.update();
-    // MainActions.deleteData();
+  }
+  const handleDelete = () : void =>{
+    MainActions.deleteData();
   }
   const handlechangeFm_MetaDataList = (name : string, value :any) : void =>{
     MainActions.changeFm_MetaDataList(name , value);
@@ -193,9 +201,13 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
           clickRowData ={handleClickRowData} 
           FM_METADATALIST={FM_METADATALIST}
           handleOnChange = {handlechangeFm_MetaDataList}
-          handleCreate = {handleCreate}
           importExcel = {importExcel}
           readSelectList = {readSelectList}
+          handleCreate = {handleCreate}
+          handleUpdate ={handleUpdate}
+          handleDelete = {handleDelete}
+          handleCRUDFlag = {changeCRUDFlag}
+          crudFlag ={crudFlag}
         />
       </div>
     );
@@ -208,7 +220,8 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
     adminSidebarList : Main.adminMenuList ,
     columnList : Main.columnList,
     dataList : Main.dataList,
-    FM_METADATALIST : Main.FM_METADATALIST
+    FM_METADATALIST : Main.FM_METADATALIST,
+    crudFlag : Main.crudFlag
   });
   
   const mapDispatchToProps = (dispatch : any) => ({

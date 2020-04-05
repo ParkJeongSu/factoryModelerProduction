@@ -10,9 +10,10 @@ import {FM_METADATA} from './../store/modules/Main';
 interface DetailTextFieldProps {
   FM_METADATA? : FM_METADATA;
   handleOnChange : (name:any ,value : any) => void;
+  crudFlag ?  : string;
 };
 
-const DetailTextField = ( {FM_METADATA,handleOnChange}  : DetailTextFieldProps ) => {
+const DetailTextField = ( {FM_METADATA,handleOnChange,crudFlag}  : DetailTextFieldProps ) => {
 
   return (
     <React.Fragment>
@@ -31,6 +32,7 @@ const DetailTextField = ( {FM_METADATA,handleOnChange}  : DetailTextFieldProps )
         onChange={(e)=>{ 
           handleOnChange(e.target.name,e.target.value);
         }}
+        disabled = {crudFlag==='READ' ? true : false}
         />
       </Grid>
     </React.Fragment>
