@@ -187,8 +187,6 @@ ipcMain.on("createTodoList", (event, arg) => {
   event.returnValue = todoList.todoList;
 });
 
-
-
 /* To Do List */
 
 
@@ -277,8 +275,6 @@ async function validationCheck(connection, FM_METADATALIST,crudFlag){
   return '';
 }
 
-
-
 ipcMain.on("dbConnectTest", async (event,arg)=>{
   dbconfig.user =arg.dbid;
   dbconfig.password = arg.dbpw;
@@ -337,6 +333,76 @@ ipcMain.on("getFM_MENU", async (event,arg)=>{
 
 });
 
+
+ipcMain.on("getFM_METADATASELECTLIST", async (event,FM_METADATA,FM_METADATALIST)=>{
+
+  let connection;
+  let result;
+  let bindObj ={};
+  let selectList = [];
+  if(FM_METADATA.SELECTQUERY ===null){
+    dialog.showErrorBox('FM_METADATA.SELECTQUERY is Null','FM_METADATA.SELECTQUERY is Null');
+  }
+  else{
+    try {
+      connection = await oracledb.getConnection(dbconfig);
+    } catch (error) {
+      // connect Fail Message
+      dialog.showErrorBox('CONNECT FAIL', error);
+    }
+    if(connection){
+  
+      for(let i=0;i<FM_METADATALIST.length;i++){
+        //includes Method : 해당 문자열에 포함되어있는지 true flase 로 반환
+        if(FM_METADATA['SELECTQUERY'].includes(':'+FM_METADATALIST[i].COLUMNNAME)){
+          if(FM_METADATALIST[j].DATATYPE === 'VARCHAR2'){
+            bindObj[FM_METADATALIST[i].COLUMNNAME] = FM_METADATALIST[i].VALUE;
+          }
+          else if(FM_METADATALIST[i].DATATYPE === 'NUMBER'){
+            bindObj[FM_METADATALIST[i].COLUMNNAME] = Number(FM_METADATALIST[i].VALUE);
+          }
+        }
+      }
+  
+      try{
+  
+        result = await connection.execute(
+          FM_METADATA['SELECTQUERY']
+          ,bindObj
+        );
+        for(let i=0;i<result.rows.length;i++){
+          selectList.push({label : result.metaData[0].name , value : result.rows[i][0]});
+        }
+  
+        for(let i=0;i<FM_METADATALIST.length;i++){
+          if(FM_METADATALIST[i].COLUMNNAME === FM_METADATA.COLUMNNAME){
+            FM_METADATALIST[i].SELECTLIST = selectList;
+            break;
+          }
+        }
+  
+      }
+      catch(err){
+        console.error(err);
+        dialog.showErrorBox('SELECTQUERY FAIL', err);
+      }
+      finally{
+        if (connection) {
+          try {
+            await connection.close();
+          } catch (err) {
+            console.error(err);
+          }
+        }
+      }
+  
+    }
+  }
+  
+
+  event.returnValue = FM_METADATALIST;
+});
+
 ipcMain.on("getFM_METADATA", async (event,arg)=>{
 
   let connection;
@@ -367,8 +433,6 @@ ipcMain.on("getFM_METADATA", async (event,arg)=>{
 
 });
 
-
-
 ipcMain.on("getData", async (event,FM_METADATALIST)=>{
 
   let connection;
@@ -392,7 +456,6 @@ ipcMain.on("getData", async (event,FM_METADATALIST)=>{
   }
   event.returnValue = dataList;
 });
-
 
 
 ipcMain.on("createData", async (event,FM_METADATALIST)=>{
@@ -460,8 +523,6 @@ ipcMain.on("createData", async (event,FM_METADATALIST)=>{
     event.returnValue = dataList;
   }
 });
-
-
 
 ipcMain.on("updateData", async (event,FM_METADATALIST)=>{
 
@@ -531,7 +592,6 @@ ipcMain.on("updateData", async (event,FM_METADATALIST)=>{
     event.returnValue = dataList;
   }
 });
-
 
 ipcMain.on("deleteData", async (event,FM_METADATALIST)=>{
 

@@ -52,6 +52,10 @@ window.getFM_MENU = function (action) {
   return ipcRenderer.sendSync('getFM_MENU',action);
 }
 
+window.getFM_METADATASELECTLIST = function (FM_METADATA,FM_METADATALIST) {
+  return ipcRenderer.sendSync('getFM_METADATASELECTLIST',FM_METADATA,FM_METADATALIST);
+}
+
 window.getFM_METADATA = function (action) {
   return ipcRenderer.sendSync('getFM_METADATA',action);
 }

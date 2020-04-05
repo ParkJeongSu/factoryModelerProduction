@@ -19,9 +19,10 @@ interface DetailInfoProps {
   handleOnChange : (name:any ,value : any) => void;
   crudFlag ?  : string;
   handleCreate : () => void;
+  readSelectList : (FM_METADATA : FM_METADATA) => void;
 };
 
-const DetailInfo = ( {FM_METADATALIST,handleOnChange,crudFlag,handleCreate}  : DetailInfoProps ) => {
+const DetailInfo = ( {FM_METADATALIST,handleOnChange,crudFlag,handleCreate,readSelectList}  : DetailInfoProps ) => {
     React.useEffect(()=>{
       console.log('DetailInfo Mount 실행');
         return ()=>{
@@ -91,7 +92,13 @@ const DetailInfo = ( {FM_METADATALIST,handleOnChange,crudFlag,handleCreate}  : D
                   />);
               }
               else if(item.INPUTTYPE==="SELECT"){
-                return (<DetailSelect/>);
+                return (
+                <DetailSelect
+                key={item.COLUMNNAME}
+                FM_METADATA = {item} 
+                handleOnChange ={handleOnChange}
+                readSelectList = {readSelectList}
+                />);
               }else if(item.INPUTTYPE==="AUTOCOMPLETE"){
                 return (<DetailAutocomplete/>);
               }

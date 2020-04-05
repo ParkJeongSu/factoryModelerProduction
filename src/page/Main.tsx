@@ -120,6 +120,9 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
         console.log('Main unMount 실행');
     };
   },[]);
+  const readSelectList = (FM_METADATA : FM_METADATA) : void =>{
+    MainActions.readSelectList(FM_METADATA);
+  }
   const importExcel = () : void =>{
     MainActions.importExcel();
   }
@@ -192,6 +195,7 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
           handleOnChange = {handlechangeFm_MetaDataList}
           handleCreate = {handleCreate}
           importExcel = {importExcel}
+          readSelectList = {readSelectList}
         />
       </div>
     );

@@ -9,34 +9,49 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import {FM_METADATA} from './../store/modules/Main';
 
 
 interface DetailSelectProps {
+  FM_METADATA? : FM_METADATA;
+  handleOnChange : (name:any ,value : any) => void;
+  readSelectList : (FM_METADATA : FM_METADATA) => void;
 };
 
-const DetailSelect = ( {}  : DetailSelectProps ) => {
+const DetailSelect = ( {FM_METADATA,handleOnChange,readSelectList}  : DetailSelectProps ) => {
+  const [optionList, setOptionList] = React.useState([]);
+  
 
   return (
     <React.Fragment>
         <Grid item xs={6} md={6} lg={6}>
             <FormControl required style={{width: '100%'}}>
               <Typography variant="h6" align ='center'>
-                h6. Heading
+                {FM_METADATA.COLUMNNAME || ''}
               </Typography>
               </FormControl>
             </Grid>
             <Grid item xs={6} md={6} lg={6}>
               <FormControl required style={{width: '100%'}}>
-                <InputLabel id="demo-simple-select-required-label">Age</InputLabel>
-                <Select>
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
-                  <MenuItem value={10}>Ten</MenuItem>
-                  <MenuItem value={20}>Twenty</MenuItem>
-                  <MenuItem value={30}>Thirty</MenuItem>
+                <InputLabel>{FM_METADATA.COLUMNNAME || ''}</InputLabel>
+                <Select 
+                name = {FM_METADATA.COLUMNNAME || ''}
+                value = {FM_METADATA.VALUE || ''}
+                onChange={(e)=>{ 
+                  handleOnChange(e.target.name,e.target.value);
+                }}
+                onOpen = {(e)=>{ 
+                  readSelectList(FM_METADATA);
+                }}
+
+                >
+                  { FM_METADATA.SELECTLIST !==undefined && FM_METADATA.SELECTLIST.map((option,index) => (
+                    <MenuItem key={index} value={option.value}>
+                      {option.value}
+                    </MenuItem>
+                  ))}
                 </Select>
-                <FormHelperText>Required</FormHelperText>
+                {FM_METADATA.ISREQUIRED==='Y' ? <FormHelperText>Required</FormHelperText> : false}
               </FormControl>
             </Grid>
 

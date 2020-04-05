@@ -23,6 +23,10 @@ export interface MainState {
     crudFlag? : string
     
   };
+  export interface SELECT{
+    value: string,
+    label: string,
+  }
   export interface FM_METADATA{
     TABLENAME? : string,
     COLUMNNAME? : string,
@@ -33,7 +37,8 @@ export interface MainState {
     INPUTTYPE?: string,
     SELECTQUERY? : string,
     PARIENTCOLUMNNAME?: string,
-    VALUE? : any
+    VALUE? : any,
+    SELECTLIST? : SELECT[]
   }
   
 
@@ -47,9 +52,15 @@ const CREATE = 'MAIN/CREATE';
 const UPDATE = 'MAIN/UPDATE';
 const DELETE = 'MAIN/DELETE';
 
-
 const IMPORTEXCEL = 'MAIN/IMPORTEXCEL';
 
+
+const READSELECTLIST = 'MAIN/READSELECTLIST';
+
+  interface ReadSelectListAction{
+    type : typeof READSELECTLIST;
+    FM_METADATA : FM_METADATA;
+  }
   interface ImportExcelAction {
     type : typeof IMPORTEXCEL;
   }
@@ -88,8 +99,14 @@ const IMPORTEXCEL = 'MAIN/IMPORTEXCEL';
       sidebar : SideBar;
     }
   }
-  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction|ChangeFm_MetaDataListAction|CreateAction|UpdateAction|DeleteAction|ImportExcelAction;
+  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction|ChangeFm_MetaDataListAction|CreateAction|UpdateAction|DeleteAction|ImportExcelAction|ReadSelectListAction;
 
+  function readSelectList (FM_METADATA : FM_METADATA){
+    return {
+      type : READSELECTLIST,
+      FM_METADATA : FM_METADATA
+    }
+  }
   function importExcel (){
     return {
       type : IMPORTEXCEL
@@ -148,7 +165,7 @@ const IMPORTEXCEL = 'MAIN/IMPORTEXCEL';
 
 
   export const actionCreators = {
-    readSideBar,checkedSideBar,clickSideBar,clickRowData,changeFm_MetaDataList,create,update,deleteData,importExcel
+    readSideBar,checkedSideBar,clickSideBar,clickRowData,changeFm_MetaDataList,create,update,deleteData,importExcel,readSelectList
   };
 
   const initialState : MainState = {
@@ -170,6 +187,19 @@ export default function Main(state = initialState, action :MainActionTypes) {
     let dataListResult : any[] =[];
     let columnListResult : any[] = [];
     switch (action.type) {
+
+      case READSELECTLIST:
+
+        try {
+          FM_METADATALIST = (window as any).getFM_METADATASELECTLIST(action.FM_METADATA,state.FM_METADATALIST);
+        } catch (error) {
+          
+        }
+
+        return produce(state ,draft =>{
+          draft.FM_METADATALIST = FM_METADATALIST;
+        });
+
 
       case IMPORTEXCEL:
         try {

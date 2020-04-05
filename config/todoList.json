@@ -23,7 +23,7 @@
     {
       "id": 4,
       "task": "test",
-      "checked": true
+      "checked": false
     }
   ]
 }
