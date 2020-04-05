@@ -352,19 +352,25 @@ ipcMain.on("getFM_METADATASELECTLIST", async (event,FM_METADATA,FM_METADATALIST)
     }
     if(connection){
   
-      for(let i=0;i<FM_METADATALIST.length;i++){
-        //includes Method : 해당 문자열에 포함되어있는지 true flase 로 반환
-        if(FM_METADATA['SELECTQUERY'].includes(':'+FM_METADATALIST[i].COLUMNNAME)){
-          if(FM_METADATALIST[j].DATATYPE === 'VARCHAR2'){
-            bindObj[FM_METADATALIST[i].COLUMNNAME] = FM_METADATALIST[i].VALUE;
-          }
-          else if(FM_METADATALIST[i].DATATYPE === 'NUMBER'){
-            bindObj[FM_METADATALIST[i].COLUMNNAME] = Number(FM_METADATALIST[i].VALUE);
-          }
-        }
-      }
+
   
       try{
+        try {
+          for(let i=0;i<FM_METADATALIST.length;i++){
+            //includes Method : 해당 문자열에 포함되어있는지 true flase 로 반환
+            if(FM_METADATA['SELECTQUERY'].includes(':'+FM_METADATALIST[i].COLUMNNAME)){
+              if(FM_METADATALIST[i].DATATYPE === 'VARCHAR2'){
+                bindObj[FM_METADATALIST[i].COLUMNNAME] = FM_METADATALIST[i].VALUE;
+              }
+              else if(FM_METADATALIST[i].DATATYPE === 'NUMBER'){
+                bindObj[FM_METADATALIST[i].COLUMNNAME] = Number(FM_METADATALIST[i].VALUE);
+              }
+            }
+          }
+        } catch (error) {
+          throw error
+        }
+        
   
         result = await connection.execute(
           FM_METADATA['SELECTQUERY']
