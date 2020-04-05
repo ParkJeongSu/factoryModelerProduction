@@ -109,9 +109,21 @@ interface MainProps {
   dataList? : [];
   FM_METADATALIST : FM_METADATA[];
   crudFlag? : string;
+  isHome : boolean;
 }
 
-const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,columnList,dataList,FM_METADATALIST,crudFlag} : MainProps)=> {
+const  Main = ({
+  MainActions,
+  ToDoActions,
+  todoList,
+  sidebarList,
+  adminSidebarList,
+  columnList,
+  dataList,
+  FM_METADATALIST,
+  crudFlag,
+  isHome
+} : MainProps)=> {
   const classes = useStyles();
   const [open, setOpen] = React.useState(true);
   React.useEffect(()=>{
@@ -178,7 +190,10 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
           classes={classes} 
           open={open} 
           onClick={handleDrawerOpen} 
-          title={(FM_METADATALIST.length > 0 && FM_METADATALIST[0].TABLENAME!==null ) ? FM_METADATALIST[0].TABLENAME : "" }
+          title={
+            isHome ===true ? 'HOME' : 
+            (FM_METADATALIST.length > 0 && FM_METADATALIST[0].TABLENAME!==null ) ? FM_METADATALIST[0].TABLENAME : ''
+            }
         />
         <Sidebar 
           classes={classes} 
@@ -208,6 +223,7 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
           handleDelete = {handleDelete}
           handleCRUDFlag = {changeCRUDFlag}
           crudFlag ={crudFlag}
+          isHome = {isHome}
         />
       </div>
     );
@@ -221,7 +237,8 @@ const  Main = ({MainActions,ToDoActions,todoList,sidebarList,adminSidebarList,co
     columnList : Main.columnList,
     dataList : Main.dataList,
     FM_METADATALIST : Main.FM_METADATALIST,
-    crudFlag : Main.crudFlag
+    crudFlag : Main.crudFlag,
+    isHome : Main.isHOME
   });
   
   const mapDispatchToProps = (dispatch : any) => ({

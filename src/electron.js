@@ -32,7 +32,7 @@ function createWindow () {
   
   // Redux tool add
   BrowserWindow.addDevToolsExtension(
-    path.join('C://Users/ParkJeongSu/AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.5.0_0')
+    path.join('C://Users/ParkJeongSu/AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/4.6.0_0')
   )
   BrowserWindow.addDevToolsExtension(
     path.join('C://Users/ParkJeongSu/AppData/Local/Google/Chrome/User Data/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0')
@@ -657,6 +657,7 @@ ipcMain.on("deleteData", async (event,FM_METADATALIST)=>{
   }
 });
 
+
 ipcMain.on("importExcel", async (event,FM_METADATALIST,option)=>{
   let connection=null;
   let result;
@@ -766,4 +767,119 @@ ipcMain.on("importExcel", async (event,FM_METADATALIST,option)=>{
   }
 
   event.returnValue = dataList;
+});
+
+
+
+ipcMain.on("settingFM_METADATA", async (event,tableName,FM_METADATALIST)=>{
+
+  let connection;
+  let result;
+  let dataList = [];
+  let columnOrder = ['TABLENAME','COLUMNNAME','COLUMNORDER','ISKEY','DATATYPE'];
+  let insertSqlData = '';
+  let insertSql='';
+  try {
+    connection = await oracledb.getConnection(dbconfig);
+  } catch (error) {
+    // connect Fail Message
+    dialog.showErrorBox('CONNECT FAIL', error);
+  }
+  if(connection)
+  {
+
+    try {
+
+      // 1. FM_MEATADATA 에서 tableName rows remove
+      let deleteSql = `DELETE FROM FM_METADATA WHERE TABLENAME = :TABLENAME`;
+      result = await connection.execute(
+        deleteSql
+        , {TABLENAME : tableName}
+        ,{autoCommit: true}
+      );
+
+      // 2. tableName에 해당하는 columnList 가져와서 FM_MEATADATA Insert
+      let selectSql =
+      `WITH PRI AS(
+        SELECT A.TABLE_NAME
+            , A.CONSTRAINT_NAME
+            , B.COLUMN_NAME     
+            , B.POSITION
+          FROM ALL_CONSTRAINTS  A
+            , ALL_CONS_COLUMNS B
+        WHERE A.TABLE_NAME      = :TABLENAME
+          AND A.CONSTRAINT_TYPE = 'P' 
+        
+          AND A.OWNER           = B.OWNER
+          AND A.CONSTRAINT_NAME = B.CONSTRAINT_NAME
+        )
+        SELECT
+        A.TABLE_NAME TABLENAME,
+        A.COLUMN_NAME COLUMNNAME,
+        A.DATA_TYPE DATATYPE,
+        A.COLUMN_ID COLUMNORDER,
+        B.POSITION,
+        DECODE(B.POSITION,NULL,'N','Y') AS ISKEY
+        FROM COLS A LEFT OUTER JOIN PRI B ON A.COLUMN_NAME = B.COLUMN_NAME AND A.TABLE_NAME = B.TABLE_NAME
+        WHERE A.TABLE_NAME =:TABLENAME
+        ORDER BY COLUMN_ID
+        `;
+      result = await connection.execute(
+        selectSql
+        , {TABLENAME : tableName}
+        ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
+      );
+      if(result.rows.length===0){
+        dialog.showErrorBox('Not Found Exception', 'Not Exist TableName');
+      }
+      for(let i=0;i<result.rows.length;i++){
+        let tempData =[];
+        for(let j=0;j<columnOrder.length;j++){
+          if('COLUMNORDER'=== columnOrder[j]){
+            tempData.push(result.rows[i][columnOrder[j]] );
+          }
+          else{
+            tempData.push(`'${result.rows[i][columnOrder[j]]}'`);
+          }
+          
+        }
+        insertSqlData += ` INTO FM_METADATA ( ${columnOrder.join(',')} ) VALUES ( ${tempData.join(',')} ) `;
+      }
+      if(result.rows.length > 0){
+        insertSql = `INSERT ALL `;
+        insertSql += insertSqlData;
+        insertSql+= ` SELECT * FROM DUAL `;
+  
+        result = await connection.execute(
+          insertSql
+          , {}
+          ,{autoCommit: true}
+        );
+      }
+
+
+    // 3. FM_METADATA LIST 조회
+      if(FM_METADATALIST.length > 0){
+        dataList = await getData(connection,FM_METADATALIST);
+      }
+      
+    } catch (error) {
+      console.log(error);
+      dialog.showErrorBox('Setting FM_METADATA Fail', error);
+    }
+    finally{
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    }
+    event.returnValue = dataList;
+  }
+  else
+  {
+    event.returnValue = dataList;
+  }
 });

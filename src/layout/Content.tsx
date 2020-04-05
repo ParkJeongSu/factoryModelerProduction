@@ -32,7 +32,7 @@ interface ContentProps  {
   handleDelete : () => void;
   handleCRUDFlag : (CRUDFlag :string) =>void;
   crudFlag ?  : string;
-
+  isHome : boolean;
   };
 
 const Content = ({ 
@@ -53,41 +53,40 @@ const Content = ({
   handleUpdate,
   handleDelete,
   handleCRUDFlag,
-  crudFlag
+  crudFlag,
+  isHome
 } : ContentProps)=> {
 
     return (
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />
         <Container maxWidth="lg" className={classes.container}>
-          
-          {/* Nomal Table */}
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={8} lg={9}>
-              <NomalTable columnList={columnList} dataList = {dataList} clickRowData= {clickRowData} importExcel = {importExcel}/>
+          {
+            isHome === true ?   
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={8} lg={9}>
+                <ToDoListMain todos={todoList} read= {read} create={create} deleted = {deleted} checked ={checked} />
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={4} lg={3}>
-              <DetailInfo 
-              FM_METADATALIST={FM_METADATALIST} 
-              handleOnChange ={handleOnChange} 
-              handleCreate={handleCreate} 
-              readSelectList = {readSelectList}
-              handleUpdate = {handleUpdate}
-              handleDelete ={handleDelete}
-              handleCRUDFlag = {handleCRUDFlag} 
-              crudFlag = {crudFlag}
-              />
+            : 
+            <Grid container spacing={3}>
+              <Grid item xs={12} md={8} lg={9}>
+                <NomalTable columnList={columnList} dataList = {dataList} clickRowData= {clickRowData} importExcel = {importExcel}/>
+              </Grid>
+              <Grid item xs={12} md={4} lg={3}>
+                <DetailInfo 
+                FM_METADATALIST={FM_METADATALIST} 
+                handleOnChange ={handleOnChange} 
+                handleCreate={handleCreate} 
+                readSelectList = {readSelectList}
+                handleUpdate = {handleUpdate}
+                handleDelete ={handleDelete}
+                handleCRUDFlag = {handleCRUDFlag} 
+                crudFlag = {crudFlag}
+                />
+              </Grid>
             </Grid>
-          </Grid>
-          {/* Nomal Table */}
-
-          {/* Home */}
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={8} lg={9}>
-              <ToDoListMain todos={todoList} read= {read} create={create} deleted = {deleted} checked ={checked} />
-            </Grid>
-          </Grid>
-          {/* Home */}
+          }
 
           <Box pt={4}>
             <Copyright />

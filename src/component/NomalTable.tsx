@@ -64,7 +64,9 @@ const NomalTable = ({columnList, dataList,clickRowData,importExcel} : NomalTable
         filtering: true,
         rowStyle : rowData =>({
           backgroundColor: (selectedRow && selectedRow.tableData.id === rowData.tableData.id) ? '#EEE' : '#FFF'
-        })
+        }),
+        pageSize : 25,
+        pageSizeOptions : [10,20,50,100,200]
       }}
       actions={[
         {
@@ -73,8 +75,6 @@ const NomalTable = ({columnList, dataList,clickRowData,importExcel} : NomalTable
           isFreeAction: true,
           onClick: (event) => {
             importExcel();
-            // alert("You want to add a new row");
-            // handleClickOpen();
           }
         }
       ]}

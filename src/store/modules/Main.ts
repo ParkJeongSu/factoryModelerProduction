@@ -20,7 +20,8 @@ export interface MainState {
     FM_METADATALIST? : FM_METADATA[],
     columnList ? : any[],
     dataList? : any[],
-    crudFlag? : string
+    crudFlag? : string,
+    isHOME : boolean
     
   };
   export interface SELECT{
@@ -59,9 +60,19 @@ const READSELECTLIST = 'MAIN/READSELECTLIST';
 
 const CHANGECRUDFLAG = 'MAIN/CHANGECRUDFLAG';
 
+const GOHOME = 'MAIN/GOHOME';
+const SETTINGFM_METADATA = 'MAIN/SETTINGFM_METADATA';
+
   interface ReadSelectListAction{
     type : typeof READSELECTLIST;
     FM_METADATA : FM_METADATA;
+  }
+  interface SettingFM_METADATAAction{
+    type : typeof SETTINGFM_METADATA;
+    tableName : string;
+  }
+  interface GoHOMEAction{
+    type : typeof GOHOME;
   }
   interface ChangeCRUDFlagAction{
     type : typeof CHANGECRUDFLAG;
@@ -105,12 +116,23 @@ const CHANGECRUDFLAG = 'MAIN/CHANGECRUDFLAG';
       sidebar : SideBar;
     }
   }
-  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction|ChangeFm_MetaDataListAction|CreateAction|UpdateAction|DeleteAction|ImportExcelAction|ReadSelectListAction|ChangeCRUDFlagAction;
+  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction|ChangeFm_MetaDataListAction|CreateAction|UpdateAction|DeleteAction|ImportExcelAction|ReadSelectListAction|ChangeCRUDFlagAction|GoHOMEAction|SettingFM_METADATAAction;
 
   function changeCRUDFlag (CRUDFLAG : string){
     return {
       type : CHANGECRUDFLAG,
       CRUDFLAG : CRUDFLAG
+    }
+  }
+  function settingFM_METADATA(tableName :string){
+    return {
+      type : SETTINGFM_METADATA,
+      tableName : tableName
+    }
+  }
+  function goHome (){
+    return {
+      type : GOHOME
     }
   }
   function readSelectList (FM_METADATA : FM_METADATA){
@@ -177,7 +199,7 @@ const CHANGECRUDFLAG = 'MAIN/CHANGECRUDFLAG';
 
 
   export const actionCreators = {
-    readSideBar,checkedSideBar,clickSideBar,clickRowData,changeFm_MetaDataList,create,update,deleteData,importExcel,readSelectList,changeCRUDFlag
+    readSideBar,checkedSideBar,clickSideBar,clickRowData,changeFm_MetaDataList,create,update,deleteData,importExcel,readSelectList,changeCRUDFlag,goHome,settingFM_METADATA
   };
 
   const initialState : MainState = {
@@ -187,7 +209,8 @@ const CHANGECRUDFLAG = 'MAIN/CHANGECRUDFLAG';
     FM_METADATALIST : [],
     columnList : [],
     dataList : [],
-    crudFlag : 'READ'
+    crudFlag : 'READ',
+    isHOME : true
   };
 
   
@@ -199,6 +222,21 @@ export default function Main(state = initialState, action :MainActionTypes) {
     let dataListResult : any[] =[];
     let columnListResult : any[] = [];
     switch (action.type) {
+      case SETTINGFM_METADATA:
+        try {
+          dataListResult = (window as any).settingFM_METADATA(action.tableName,state.FM_METADATALIST);
+        } catch (error) {
+         console.log(error); 
+        }
+        return produce(state ,draft =>{
+          if(state.FM_METADATALIST.length > 0 &&state.FM_METADATALIST[0].TABLENAME==='FM_METADATA'){
+            draft.dataList = dataListResult;
+          }
+        });
+      case GOHOME:
+        return produce(state ,draft =>{
+          draft.isHOME=true;
+        });
       case CHANGECRUDFLAG:
         return produce(state,draft=>{
           draft.crudFlag = action.CRUDFLAG;
@@ -297,6 +335,7 @@ export default function Main(state = initialState, action :MainActionTypes) {
           draft.columnList = columnListResult;
           draft.dataList = dataListResult;
           draft.crudFlag ='READ';
+          draft.isHOME = false;
         });
 
       case CHECKEDSIDEBAR:

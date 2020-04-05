@@ -78,4 +78,7 @@ window.deleteData = function (action) {
 window.importExcel = function (action,option) {
   return ipcRenderer.sendSync('importExcel',action,option);;
 }
+window.settingFM_METADATA = function (tableName,FM_METADATALIST) {
+  return ipcRenderer.sendSync('settingFM_METADATA',tableName,FM_METADATALIST);
+}
 /* Db */
