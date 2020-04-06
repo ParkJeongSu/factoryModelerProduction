@@ -6,6 +6,7 @@ const { ipcMain } = require('electron');
 const oracledb = require('oracledb');
 const {produce} = require('immer');
 const XLSX = require('xlsx');
+const logger = require("./logger");
 
 const dbconfigPath = path.join(__dirname, "/../config/dbconfig.json");
 const toDoListPath = path.join(__dirname, "/../config/todoList.json");
@@ -36,7 +37,8 @@ function createWindow () {
   )
   BrowserWindow.addDevToolsExtension(
     path.join('C://Users/ParkJeongSu/AppData/Local/Google/Chrome/User Data/Default/Extensions/lmhkpmbekcpmknklioeibfkpmmfibljd/2.17.0_0')
-  )
+  );
+
 
 }
 
@@ -122,6 +124,15 @@ ipcMain.on("deleteDbConfig", (event, arg) => {
 
 ipcMain.on("getTodoList", (event, arg) => {
   let todoList = jsonfile.readFileSync(toDoListPath);
+  logger.info("1111");
+  logger.trace("Entering cheese testing");
+  logger.debug("Got cheese.");
+  logger.info("Cheese is Gouda.");
+  logger.log("Something funny about cheese.");
+  logger.warn("Cheese is quite smelly.");
+  // these end up only in cheese.log
+  logger.error("Cheese %s is too ripe!", "gouda");
+  logger.fatal("Cheese was breeding ground for listeria.");
   event.returnValue = todoList.todoList;
 });
 
@@ -768,8 +779,6 @@ ipcMain.on("importExcel", async (event,FM_METADATALIST,option)=>{
 
   event.returnValue = dataList;
 });
-
-
 
 ipcMain.on("settingFM_METADATA", async (event,tableName,FM_METADATALIST)=>{
 

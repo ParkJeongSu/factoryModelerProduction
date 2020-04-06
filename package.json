@@ -37,6 +37,7 @@
     "csstype": "^2.6.9",
     "immer": "^6.0.2",
     "jsonfile": "^6.0.1",
+    "log4js": "^6.1.2",
     "material-table": "^1.57.2",
     "oracledb": "^4.2.0",
     "react": "^16.13.0",
@@ -72,7 +73,10 @@
       ],
       "icon": "config/icon.ico"
     },
-    "asarUnpack": "./config/*",
+    "asarUnpack": [
+      "./config/*",
+      "./log/*"
+    ],
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
