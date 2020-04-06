@@ -19,11 +19,6 @@
       "id": 3,
       "task": "do something 4",
       "checked": true
-    },
-    {
-      "id": 4,
-      "task": "test",
-      "checked": false
     }
   ]
 }

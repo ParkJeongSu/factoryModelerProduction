@@ -70,7 +70,7 @@ let dbconfig = {
   password : '1234',
   host: 'localhost:1521/orcl'
 };
-let userID =  null;
+let userID =  'JSPARK91';
 
 /* Db Config */
 ipcMain.on("getDbConfig", (event, arg) => {
@@ -250,11 +250,11 @@ async function validationCheck(connection, FM_METADATALIST,crudFlag){
     tableName ='FM_DELETE_CONSTRAINT';
   }
   // SELECT ValidationList
-  let selectQuery = `SELECT TABLENAME,VALIDATIONQUERY,MESSAGE FROM ${tableName}`;
+  let selectQuery = `SELECT TABLENAME,VALIDATIONQUERY,MESSAGE FROM ${tableName} WHERE TABLENAME = :TABLENAME`;
   try {
     result = await connection.execute(
       selectQuery
-      , {}
+      , {TABLENAME : FM_METADATALIST[0].TABLENAME}
       ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
     );
     for(let i=0;i<result.rows.length;i++){
@@ -281,7 +281,8 @@ async function validationCheck(connection, FM_METADATALIST,crudFlag){
     }
 
   } catch (error) {
-    return error;
+    logger.error(error.message);
+    return error.message;
   }
   return '';
 }
@@ -497,7 +498,16 @@ ipcMain.on("createData", async (event,FM_METADATALIST)=>{
     if(validationErrorMessage===''){
       for(let i=0;i<FM_METADATALIST.length;i++){
         columnList.push(FM_METADATALIST[i].COLUMNNAME);
-        bindList.push(FM_METADATALIST[i].VALUE);
+        if(null === FM_METADATALIST[i].VALUE){
+          bindList.push('null');
+        }
+        else if('VARCHAR2'===FM_METADATALIST[i].DATATYPE){
+          bindList.push(`'${FM_METADATALIST[i].VALUE}'`);
+        }
+        else{
+          bindList.push(FM_METADATALIST[i].VALUE);
+        }
+        
       }
       let insertSql = `INSERT INTO ${FM_METADATALIST[0].TABLENAME} ( ${columnList.join(',')} ) VALUES ( ${bindList.join(',')} )`;
       try{
@@ -518,7 +528,7 @@ ipcMain.on("createData", async (event,FM_METADATALIST)=>{
       // Create Error Message
       dialog.showErrorBox('INSERT FAIL', validationErrorMessage);
     }
-
+    addHistory(FM_METADATALIST,'CREATE');
     try {
       dataList = await getData(connection,FM_METADATALIST);
     } catch (error) {
@@ -562,10 +572,26 @@ ipcMain.on("updateData", async (event,FM_METADATALIST)=>{
     if(validationErrorMessage===''){
       for(let i=0;i<FM_METADATALIST.length;i++){
         if("Y"=== FM_METADATALIST[i].ISKEY){
-          conditionColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
+          if(null === FM_METADATALIST[i].VALUE){
+            conditionColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
+          }
+          else if('VARCHAR2'===FM_METADATALIST[i].DATATYPE){
+            conditionColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + `'${FM_METADATALIST[i].VALUE}'`);
+          }
+          else{
+            conditionColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
+          }
         }
         else{
-          updateColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
+          if(null === FM_METADATALIST[i].VALUE){
+            updateColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
+          }
+          else if('VARCHAR2'===FM_METADATALIST[i].DATATYPE){
+            updateColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + `'${FM_METADATALIST[i].VALUE}'`);
+          }
+          else{
+            updateColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
+          }
         }
       }
       let updateSql = `UPDATE ${FM_METADATALIST[0].TABLENAME} SET ${updateColumnList.join(',')} WHERE ${conditionColumnList.join(' AND ')} `;
@@ -892,3 +918,213 @@ ipcMain.on("settingFM_METADATA", async (event,tableName,FM_METADATALIST)=>{
     event.returnValue = dataList;
   }
 });
+
+ipcMain.on("settingFM_METADATAHISTORY", async (event,tableName,historyTableName,FM_METADATALIST)=>{
+
+  let connection;
+  let result;
+  let dataList = [];
+  let columnOrder = ['HISTORYTABLENAME','HISTORYCOLUMNNAME','TABLENAME'];
+  let insertSqlData = '';
+  let insertSql='';
+  try {
+    connection = await oracledb.getConnection(dbconfig);
+  } catch (error) {
+    // connect Fail Message
+    dialog.showErrorBox('CONNECT FAIL', error);
+  }
+  if(connection)
+  {
+
+    try {
+
+      // 1. FM_MEATADATA 에서 tableName rows remove
+      let deleteSql = `DELETE FROM FM_MEATADATAHISTORY WHERE HISTORYTABLENAME = :TABLENAME`;
+      result = await connection.execute(
+        deleteSql
+        , {TABLENAME : historyTableName}
+        ,{autoCommit: true}
+      );
+
+      // 2. historyTableName 해당하는 columnList 가져와서 FM_MEATADATAHISTORY Insert
+      let selectSql =
+      `SELECT
+      A.TABLE_NAME TABLENAME,
+      A.COLUMN_NAME COLUMNNAME,
+      A.DATA_TYPE DATATYPE,
+      A.COLUMN_ID COLUMNORDER
+      FROM COLS A
+      WHERE A.TABLE_NAME =:TABLENAME
+      ORDER BY COLUMN_ID`;
+      result = await connection.execute(
+        selectSql
+        , {TABLENAME : historyTableName}
+        ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
+      );
+      if(result.rows.length===0){
+        dialog.showErrorBox('Not Found Exception', 'Not Exist historyTableName');
+      }
+
+      for(let i=0;i<result.rows.length;i++){
+        let tempData =[];
+        tempData.push(`'${historyTableName}'` );
+        tempData.push(`'${result.rows[i].COLUMNNAME}'` );
+        tempData.push(`'${tableName}'` );
+        insertSqlData += ` INTO FM_MEATADATAHISTORY ( ${columnOrder.join(',')} ) VALUES ( ${tempData.join(',')} ) `;
+      }
+      if(result.rows.length > 0){
+        insertSql = `INSERT ALL `;
+        insertSql += insertSqlData;
+        insertSql+= ` SELECT * FROM DUAL `;
+  
+        result = await connection.execute(
+          insertSql
+          , {}
+          ,{autoCommit: true}
+        );
+      }
+
+
+    // 3. FM_METADATA LIST 조회
+      if(FM_METADATALIST.length > 0){
+        dataList = await getData(connection,FM_METADATALIST);
+      }
+      
+    } catch (error) {
+      console.log(error);
+      dialog.showErrorBox('Setting FM_METADATAHISTORY Fail', error);
+    }
+    finally{
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    }
+    event.returnValue = dataList;
+  }
+  else
+  {
+    event.returnValue = dataList;
+  }
+});
+
+
+
+
+async function addHistory( FM_METADATALIST, crudFlag){
+  let connection;
+  let result;
+  let selectSql='';
+  let insertSql='';
+  let columns = [];
+  let bindvar = [];
+  let values = {};
+  let now = new Date();
+  try {
+    connection = await oracledb.getConnection(dbconfig);
+  } catch (error) {
+    // connect Fail Message
+    dialog.showErrorBox('CONNECT FAIL', error);
+  }
+  if(connection)
+  {
+    try {
+      // 1. Select FM_METAHISTORY
+    selectSql = `SELECT * FROM FM_MEATADATAHISTORY A WHERE A.TABLENAME=:TABLENAME `;
+    result = await connection.execute(
+      selectSql
+      , {TABLENAME : FM_METADATALIST[0].TABLENAME}
+      ,{outFormat: oracledb.OUT_FORMAT_OBJECT}
+    );
+    
+    if(result.rows.length>0){
+      // 2. make insertSQL 
+      for(let i=0;i<result.rows.length;i++){
+        columns.push(result.rows[i]['HISTORYCOLUMNNAME']);
+        bindvar.push(`:${result.rows[i]['HISTORYCOLUMNNAME']}`);
+        if('USERNAME'=== result.rows[i]['OPTIONS']){
+          values[result.rows[i]['HISTORYCOLUMNNAME']] = userID;
+        }
+        else if('TIMEKEY' === result.rows[i]['OPTIONS']){
+          let year = now.getFullYear().toString();
+          let month = now.getMonth()+1;
+          let date = now.getDate();
+          let hours = now.getHours();
+          let minutes = now.getMinutes();
+          let seconds = now.getSeconds();
+          if(month.toString().length === 1){
+            month = '0'+month;
+          }
+          if(date.toString().length === 1){
+            date = '0'+date;
+          }
+          if(hours.toString().length===1){
+            hours='0'+hours;
+          }
+          if(minutes.toString().length===1){
+            minutes ='0'+minutes;
+          }
+          if(seconds.toString().length===1){
+            seconds = '0'+seconds;
+          }
+          let timekey = year+month+date+hours+minutes+seconds;
+          values[result.rows[i]['HISTORYCOLUMNNAME']] = timekey;
+        }
+        else if('TIME' === result.rows[i]['OPTIONS']){
+          values[result.rows[i]['HISTORYCOLUMNNAME']] = now;
+        }
+        else if('EVENTNAME' === result.rows[i]['OPTIONS']){
+          if('CREATE'=== crudFlag){
+            values[result.rows[i]['HISTORYCOLUMNNAME']] = 'CREATE';
+          }
+          else if('UPDATE'===crudFlag){
+            values[result.rows[i]['HISTORYCOLUMNNAME']] = 'UPDATE';
+          }
+          else if('DELETE'===crudFlag){
+            values[result.rows[i]['HISTORYCOLUMNNAME']] = 'DELETE';
+          }
+        }
+        else{
+          for(let j=0;j<FM_METADATALIST.length;j++){
+            if(result.rows[i]['TABLECOLUMNNAME'] === FM_METADATALIST[j].COLUMNNAME){
+              if('NUMBER'===FM_METADATALIST[j].DATATYPE){
+                values[result.rows[i]['HISTORYCOLUMNNAME']] = Number(FM_METADATALIST[j].VALUE);
+              }
+              else{
+                values[result.rows[i]['HISTORYCOLUMNNAME']] = FM_METADATALIST[j].VALUE;
+              }
+              break;
+            }
+          }
+        }
+      }
+
+      insertSql = `INSERT INTO ${result.rows[0]['HISTORYTABLENAME']} (${columns.join(',')}) VALUES (${bindvar.join(',')})`;
+      // 3. insert History
+      
+      result = await connection.execute(
+        insertSql
+        , values
+        ,{autoCommit: true}
+      );
+    }
+    }
+    catch (error) {
+      console.log(error);
+      logger.error(error);
+    }
+    finally{
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    }
+  }
+
+}

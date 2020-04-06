@@ -62,10 +62,16 @@ const CHANGECRUDFLAG = 'MAIN/CHANGECRUDFLAG';
 
 const GOHOME = 'MAIN/GOHOME';
 const SETTINGFM_METADATA = 'MAIN/SETTINGFM_METADATA';
+const SETTINGFM_METADATAHISTORY = 'MAIN/SETTINGFM_METADATAHISTORY';
 
   interface ReadSelectListAction{
     type : typeof READSELECTLIST;
     FM_METADATA : FM_METADATA;
+  }
+  interface SETTINGFM_METADATAHISTORYAction{
+    type : typeof SETTINGFM_METADATAHISTORY;
+    tableName : string;
+    historyTableName :string;
   }
   interface SettingFM_METADATAAction{
     type : typeof SETTINGFM_METADATA;
@@ -116,12 +122,19 @@ const SETTINGFM_METADATA = 'MAIN/SETTINGFM_METADATA';
       sidebar : SideBar;
     }
   }
-  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction|ChangeFm_MetaDataListAction|CreateAction|UpdateAction|DeleteAction|ImportExcelAction|ReadSelectListAction|ChangeCRUDFlagAction|GoHOMEAction|SettingFM_METADATAAction;
+  export type MainActionTypes = ReadSideBarAction|CheckedSideBarAction|ClickSideBarAction|ClickRowDataAction|ChangeFm_MetaDataListAction|CreateAction|UpdateAction|DeleteAction|ImportExcelAction|ReadSelectListAction|ChangeCRUDFlagAction|GoHOMEAction|SettingFM_METADATAAction|SETTINGFM_METADATAHISTORYAction;
 
   function changeCRUDFlag (CRUDFLAG : string){
     return {
       type : CHANGECRUDFLAG,
       CRUDFLAG : CRUDFLAG
+    }
+  }
+  function settingFM_METADATAHISTORY(tableName :string, historyTableName : string){
+    return {
+      type : SETTINGFM_METADATAHISTORY,
+      tableName : tableName,
+      historyTableName :historyTableName
     }
   }
   function settingFM_METADATA(tableName :string){
@@ -199,7 +212,7 @@ const SETTINGFM_METADATA = 'MAIN/SETTINGFM_METADATA';
 
 
   export const actionCreators = {
-    readSideBar,checkedSideBar,clickSideBar,clickRowData,changeFm_MetaDataList,create,update,deleteData,importExcel,readSelectList,changeCRUDFlag,goHome,settingFM_METADATA
+    readSideBar,checkedSideBar,clickSideBar,clickRowData,changeFm_MetaDataList,create,update,deleteData,importExcel,readSelectList,changeCRUDFlag,goHome,settingFM_METADATA,settingFM_METADATAHISTORY
   };
 
   const initialState : MainState = {
@@ -222,6 +235,17 @@ export default function Main(state = initialState, action :MainActionTypes) {
     let dataListResult : any[] =[];
     let columnListResult : any[] = [];
     switch (action.type) {
+      case SETTINGFM_METADATAHISTORY:
+        try {
+          dataListResult = (window as any).settingFM_METADATAHISTORY(action.tableName,action.historyTableName,state.FM_METADATALIST);
+        } catch (error) {
+         console.log(error); 
+        }
+        return produce(state ,draft =>{
+          if(state.FM_METADATALIST.length > 0 &&state.FM_METADATALIST[0].TABLENAME==='FM_METADATAHISTORY'){
+            draft.dataList = dataListResult;
+          }
+        });
       case SETTINGFM_METADATA:
         try {
           dataListResult = (window as any).settingFM_METADATA(action.tableName,state.FM_METADATALIST);

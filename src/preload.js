@@ -81,4 +81,7 @@ window.importExcel = function (action,option) {
 window.settingFM_METADATA = function (tableName,FM_METADATALIST) {
   return ipcRenderer.sendSync('settingFM_METADATA',tableName,FM_METADATALIST);
 }
+window.settingFM_METADATAHISTORY = function (tableName,historyTableName,FM_METADATALIST) {
+  return ipcRenderer.sendSync('settingFM_METADATAHISTORY',tableName,historyTableName,FM_METADATALIST);
+}
 /* Db */

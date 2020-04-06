@@ -20,13 +20,12 @@ import {actionCreators as MainActions} from '../store/modules/Main';
 import {bindActionCreators} from 'redux';
 
 
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
+import Dialog1 from './../component/Dialog1';
+import Dialog2 from './../component/Dialog2';
+
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 
 interface HeaderProps  {
   classes : any;
@@ -36,6 +35,12 @@ interface HeaderProps  {
   MainActions : typeof MainActions;
   onClick : () => void;
   };
+
+  const options = [
+    'FM_METADATA',
+    'FM_MEATADATAHISTORY'
+  ];
+  const ITEM_HEIGHT = 48;
   
 const Header = ({classes , title,open, LoginActions,MainActions,onClick} : HeaderProps) => {
   const handleLogOut = ()=>{
@@ -48,13 +53,15 @@ const Header = ({classes , title,open, LoginActions,MainActions,onClick} : Heade
   const handleSettingFM_MEATADATA = (tableName :string)=>{
     MainActions.settingFM_METADATA(tableName);
   }
+  const handleSettingFM_MEATADATAHISTORY = (tableName : string, historyTableName : string)=>{
+    MainActions.settingFM_METADATAHISTORY(tableName,historyTableName);
+  }
   const handleOnClick = ()=>{
     console.log('handleOnClick');
     onClick();
   }
 
   const [settingOpen, setsettingOpen] = React.useState(false);
-  const [value, setValue] = React.useState('');
 
   const handleClickOpen = () => {
     setsettingOpen(true);
@@ -63,6 +70,21 @@ const Header = ({classes , title,open, LoginActions,MainActions,onClick} : Heade
   const handleClose = () => {
     setsettingOpen(false);
   };
+
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const hambergerOpen = Boolean(anchorEl);
+  const [option, setOption] = React.useState('');
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleHamberGerClose = (optionName : string) => {
+    setAnchorEl(null);
+    handleClickOpen();
+    setOption(optionName);
+  };
+
   return (
     <AppBar position="absolute" className={clsx(classes.appBar, open && classes.appBarShift)}>
     <Toolbar className={classes.toolbar}>
@@ -81,6 +103,41 @@ const Header = ({classes , title,open, LoginActions,MainActions,onClick} : Heade
       <IconButton color="inherit" onClick = {()=>{handleClickOpen();}}>
         <SettingsIcon/>
       </IconButton>
+      <IconButton
+        aria-label="more"
+        aria-controls="long-menu"
+        aria-haspopup="true"
+        onClick={handleClick}
+      >
+        <MoreVertIcon />
+      </IconButton>
+      <Menu
+        id="long-menu"
+        anchorEl={anchorEl}
+        keepMounted
+        open={hambergerOpen}
+        onClose={
+          ()=>{
+            setAnchorEl(null);
+          }
+        }
+        PaperProps={{
+          style: {
+            maxHeight: ITEM_HEIGHT * 4.5,
+            width: '40ch',
+          },
+        }}
+      >
+        {options.map((option) => (
+          <MenuItem key={option} onClick={
+            (e)=>{
+              handleHamberGerClose(option);
+            }
+            }>
+            {option}
+          </MenuItem>
+        ))}
+      </Menu>
       <IconButton color="inherit" onClick = {()=>{handleGoHOME();}}>
         <HomeIcon/>
       </IconButton>
@@ -88,43 +145,8 @@ const Header = ({classes , title,open, LoginActions,MainActions,onClick} : Heade
         <ExitToAppIcon/>
       </IconButton>
     </Toolbar>
-    <Dialog open={settingOpen} onClose={handleClose} aria-labelledby="form-dialog-title">
-        <DialogTitle id="form-dialog-title">Setting FM_METADATA</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Input TableName if you want to use Table in FactoryModeler
-          </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Input FM_METADATA"
-            fullWidth
-            onChange = {(e)=>{ setValue(e.target.value); }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={
-            (e)=>{
-              handleClose();
-              setValue('');
-            }} 
-            color="primary">
-            Cancel
-          </Button>
-          <Button 
-            onClick={
-              (e)=>{
-                handleSettingFM_MEATADATA(value);
-                handleClose();
-                setValue('');
-              }
-            } 
-            color="primary">
-            Setting
-          </Button>
-        </DialogActions>
-      </Dialog>
+    <Dialog1 settingOpen={settingOpen && option==='FM_METADATA'} handleClose={handleClose} handleSettingFM_MEATADATA ={handleSettingFM_MEATADATA}/>
+    <Dialog2 settingOpen={settingOpen && option==='FM_MEATADATAHISTORY'} handleClose={handleClose} handleSetting ={handleSettingFM_MEATADATAHISTORY}/>
   </AppBar>
   );
 }
