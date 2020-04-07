@@ -100,9 +100,6 @@ const Header = ({classes , title,open, LoginActions,MainActions,onClick} : Heade
       <Typography component="h1" variant="h6" color="inherit" noWrap className={classes.title}>
         {title}
       </Typography>
-      <IconButton color="inherit" onClick = {()=>{handleClickOpen();}}>
-        <SettingsIcon/>
-      </IconButton>
       <IconButton
         aria-label="more"
         aria-controls="long-menu"

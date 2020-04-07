@@ -559,6 +559,8 @@ ipcMain.on("updateData", async (event,FM_METADATALIST)=>{
   let conditionColumnList = [];
   let dataList = [];
 
+  let values = {};
+
   try {
     connection = await oracledb.getConnection(dbconfig);
   } catch (error) {
@@ -572,33 +574,18 @@ ipcMain.on("updateData", async (event,FM_METADATALIST)=>{
     if(validationErrorMessage===''){
       for(let i=0;i<FM_METADATALIST.length;i++){
         if("Y"=== FM_METADATALIST[i].ISKEY){
-          if(null === FM_METADATALIST[i].VALUE){
-            conditionColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
-          }
-          else if('VARCHAR2'===FM_METADATALIST[i].DATATYPE){
-            conditionColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + `'${FM_METADATALIST[i].VALUE}'`);
-          }
-          else{
-            conditionColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
-          }
+          conditionColumnList.push(` ${FM_METADATALIST[i].COLUMNNAME} = :${FM_METADATALIST[i].COLUMNNAME}`);
         }
         else{
-          if(null === FM_METADATALIST[i].VALUE){
-            updateColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
-          }
-          else if('VARCHAR2'===FM_METADATALIST[i].DATATYPE){
-            updateColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + `'${FM_METADATALIST[i].VALUE}'`);
-          }
-          else{
-            updateColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
-          }
+          updateColumnList.push(` ${FM_METADATALIST[i].COLUMNNAME} = :${FM_METADATALIST[i].COLUMNNAME}`);
         }
+        values[FM_METADATALIST[i].COLUMNNAME] = FM_METADATALIST[i].VALUE;
       }
       let updateSql = `UPDATE ${FM_METADATALIST[0].TABLENAME} SET ${updateColumnList.join(',')} WHERE ${conditionColumnList.join(' AND ')} `;
       try{
         result = await connection.execute(
           updateSql
-          , {}
+          , values
           ,{autoCommit: true}
         );
     
@@ -613,7 +600,7 @@ ipcMain.on("updateData", async (event,FM_METADATALIST)=>{
       // Update Error Message
       dialog.showErrorBox('UPDATE FAIL', validationErrorMessage);
     }
-    
+    addHistory(FM_METADATALIST,'UPDATE');
     try {
       dataList = await getData(connection,FM_METADATALIST);
     } catch (error) {
@@ -642,6 +629,7 @@ ipcMain.on("deleteData", async (event,FM_METADATALIST)=>{
   let result;
   let conditionColumnList = [];
   let dataList = [];
+  let values = {};
 
   try {
     connection = await oracledb.getConnection(dbconfig);
@@ -659,12 +647,13 @@ ipcMain.on("deleteData", async (event,FM_METADATALIST)=>{
         // if("Y"=== FM_METADATALIST[i].ISKEY){
         //   conditionColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
         // }
-        conditionColumnList.push(FM_METADATALIST[i].COLUMNNAME + ' = ' + FM_METADATALIST[i].VALUE);
+        conditionColumnList.push(` ${FM_METADATALIST[i].COLUMNNAME} = :${FM_METADATALIST[i].COLUMNNAME}`);
+        values[FM_METADATALIST[i].COLUMNNAME] = FM_METADATALIST[i].VALUE;
       }
       let deleteSql = `DELETE FROM  ${FM_METADATALIST[0].TABLENAME} WHERE ${conditionColumnList.join(' AND ')} `;
       result = await connection.execute(
         deleteSql
-        , {}
+        , values
         ,{autoCommit: true}
       );
     }
@@ -672,6 +661,7 @@ ipcMain.on("deleteData", async (event,FM_METADATALIST)=>{
         // Delete Error Message
         dialog.showErrorBox('DELETE FAIL', validationErrorMessage);
     }
+    addHistory(FM_METADATALIST,'DELETE');
     try {
       dataList = await getData(connection,FM_METADATALIST);
     } catch (error) {
@@ -1010,8 +1000,6 @@ ipcMain.on("settingFM_METADATAHISTORY", async (event,tableName,historyTableName,
     event.returnValue = dataList;
   }
 });
-
-
 
 
 async function addHistory( FM_METADATALIST, crudFlag){
