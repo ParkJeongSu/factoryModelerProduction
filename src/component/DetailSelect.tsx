@@ -11,7 +11,13 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import {FM_METADATA} from './../store/modules/Main';
 import Box from '@material-ui/core/Box';
-
+import { makeStyles } from '@material-ui/core/styles';
+const useStyles = makeStyles({
+  DetailTextField: {
+    padding: '10px',
+    fontSize: 14
+  }
+});
 
 interface DetailSelectProps {
   FM_METADATA? : FM_METADATA;
@@ -21,13 +27,13 @@ interface DetailSelectProps {
 };
 
 const DetailSelect = ( {FM_METADATA,handleOnChange,readSelectList,crudFlag}  : DetailSelectProps ) => {  
-
+  const classes = useStyles();
   return (
     <React.Fragment>
             <Grid item xs={6} md={6} lg={6} >
             <FormControl style={{width: '100%'}} >
-              <Box overflow ="auto">
-              <Typography variant="h6" align ='center'>
+              <Box overflow ="auto" className={classes.DetailTextField}>
+              <Typography  align ='left'>
                 {FM_METADATA.COLUMNNAME || ''}
               </Typography>
               </Box>

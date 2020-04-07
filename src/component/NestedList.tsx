@@ -8,6 +8,19 @@ import Collapse from "@material-ui/core/Collapse";
 import LabelIcon from '@material-ui/icons/Label';
 import {SideBar} from './../store/modules/Main';
 
+import { makeStyles } from '@material-ui/core/styles';
+import Box from '@material-ui/core/Box';
+
+const useStyles = makeStyles({
+    listIcon: {
+        minWidth: '32px',
+    },
+    listText:{
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+    }
+  });
 
     interface NestedListProps  {
         menuTitle : string,
@@ -17,7 +30,7 @@ import {SideBar} from './../store/modules/Main';
     };
   
 const NestedList = ({menuTitle , menuList,checkedSideBar,clickSideBar} : NestedListProps)=>{
-
+    const classes = useStyles();
     return (
         <div>
             <List>
@@ -26,7 +39,7 @@ const NestedList = ({menuTitle , menuList,checkedSideBar,clickSideBar} : NestedL
             menuList.map((item)=>{ return ( 
                 <div key = {item.MENUID}>
                     <ListItem button onClick={(e)=>{checkedSideBar(item.MENUID);}}>
-                        <ListItemText primary={item.MENUNAME}/>
+                        <ListItemText primary={item.MENUNAME} classes={{ root: classes.listText }} />
                     </ListItem>
                     <Collapse
                         component="li"
@@ -39,12 +52,18 @@ const NestedList = ({menuTitle , menuList,checkedSideBar,clickSideBar} : NestedL
                             item.CHILDRENLIST.map(
                                 (sidebar)=>{
                                     return (
+                                        <Box
+
+                                        key={sidebar.MENUID}
+                                        >
                                         <ListItem button key={sidebar.MENUID} onClick = {(e)=>{ clickSideBar(sidebar); }} >
-                                            <ListItemIcon>
+                                            <ListItemIcon className={classes.listIcon}>
                                                 <LabelIcon />
                                             </ListItemIcon>
-                                            <ListItemText primary={sidebar.MENUNAME} />
+                                            <ListItemText primary={sidebar.MENUNAME} classes={{ root: classes.listText }}
+                                            />
                                         </ListItem> 
+                                        </Box>
                                         );
                                     })
                             }

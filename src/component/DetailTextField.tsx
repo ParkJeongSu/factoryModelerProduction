@@ -8,22 +8,30 @@ import { CssBaseline } from '@material-ui/core';
 import {FM_METADATA} from './../store/modules/Main';
 import Box from '@material-ui/core/Box';
 
+import { makeStyles } from '@material-ui/core/styles';
+const useStyles = makeStyles({
+  DetailTextField: {
+    padding: '10px',
+    fontSize: 14
+  }
+});
 interface DetailTextFieldProps {
   FM_METADATA? : FM_METADATA;
   handleOnChange : (name:any ,value : any) => void;
   crudFlag ?  : string;
 };
 
-const DetailTextField = ( {FM_METADATA,handleOnChange,crudFlag}  : DetailTextFieldProps ) => {
 
+const DetailTextField = ( {FM_METADATA,handleOnChange,crudFlag}  : DetailTextFieldProps ) => {
+  const classes = useStyles();
   return (
     <React.Fragment>
       <Grid item xs={6} md={6} lg={6}>
-      <Box overflow ="auto">
-        <Typography variant="h6" align ='center'>
+      <Box overflow ="auto" >
+        <Typography align ='left' className={classes.DetailTextField}>
           {FM_METADATA.COLUMNNAME || ''}
         </Typography>
-        </Box>
+      </Box>
       </Grid>
       <CssBaseline/>
       <Grid item xs={6} md={6} lg={6}>

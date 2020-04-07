@@ -13,6 +13,13 @@ import DetailTextField from './DetailTextField';
 
 import {FM_METADATA} from './../store/modules/Main';
 import produce from 'immer';
+import { makeStyles } from '@material-ui/core/styles';
+const useStyles = makeStyles({
+  containerGrid: {
+      padding: '10px',
+  }
+});
+
 
 interface DetailInfoProps {
   FM_METADATALIST? : FM_METADATA[];
@@ -38,6 +45,7 @@ const DetailInfo = ( {
   handleCRUDFlag
   
 }  : DetailInfoProps ) => {
+  const classes = useStyles();
     React.useEffect(()=>{
       console.log('DetailInfo Mount 실행');
         return ()=>{
@@ -55,49 +63,51 @@ const DetailInfo = ( {
               </Typography>
             </Grid>
             <CssBaseline/>
-
-            <Grid item xs={4} md={4} lg={4}>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                onClick = {(e)=>{
-                  e.preventDefault();
-                  handleCRUDFlag('CREATE');
-                }}
-                >
-                Create
-              </Button>
+            <Grid container spacing={2} className={classes.containerGrid} >
+              <Grid item xs={4} md={4} lg={4}>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  onClick = {(e)=>{
+                    e.preventDefault();
+                    handleCRUDFlag('CREATE');
+                  }}
+                  >
+                  Create
+                </Button>
+              </Grid>
+              <Grid item xs={4} md={4} lg={4}>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  onClick = {(e)=>{
+                    e.preventDefault();
+                    handleCRUDFlag('UPDATE');
+                  }}
+                  >
+                  Modifiy
+                </Button>
+              </Grid>
+              <Grid item xs={4} md={4} lg={4}>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  onClick = {(e)=>{
+                    e.preventDefault();
+                    handleCRUDFlag('DELETE');
+                  }}
+                  >
+                  Delete
+                </Button>
+              </Grid>
             </Grid>
-            <Grid item xs={4} md={4} lg={4}>
-            <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                onClick = {(e)=>{
-                  e.preventDefault();
-                  handleCRUDFlag('UPDATE');
-                }}
-                >
-                Modifiy
-              </Button>
-            </Grid>
-            <Grid item xs={4} md={4} lg={4}>
-            <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                onClick = {(e)=>{
-                  e.preventDefault();
-                  handleCRUDFlag('DELETE');
-                }}
-                >
-                Delete
-              </Button>
-            </Grid>
+            
             <CssBaseline/>
 
             { FM_METADATALIST!==null && FM_METADATALIST.map((item) =>{
