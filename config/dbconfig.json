@@ -11,12 +11,12 @@
     },
     {
       "id": 1,
-      "name": "test",
-      "host": "test",
-      "dbid": "test",
-      "dbpw": "test",
-      "userid": "test",
-      "userpw": "tes"
+      "name": "TSTARRAY",
+      "host": "jdbc:oracle:thin:@10.20.2.60:1521:tstmesdb",
+      "dbid": "t2arrayadm",
+      "dbpw": "t2arrayadm",
+      "userid": "JSPARK91",
+      "userpw": "1"
     }
   ]
 }

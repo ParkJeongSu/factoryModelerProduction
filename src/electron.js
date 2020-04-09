@@ -64,11 +64,10 @@ app.on('activate', function () {
 // code. You can also put them in separate files and require them here.
 
 
-
 let dbconfig = {
-  user : 'SCOTT',
-  password : '1234',
-  host: 'localhost:1521/orcl'
+  user          : process.env.NODE_ORACLEDB_USER || "t2arrayadm",
+  password      : process.env.NODE_ORACLEDB_PASSWORD || "t2arrayadm",
+  connectString : process.env.NODE_ORACLEDB_CONNECTIONSTRING || "10.20.2.60/tstmesdb",
 };
 let userID =  'JSPARK91';
 
@@ -364,8 +363,6 @@ ipcMain.on("getFM_METADATASELECTLIST", async (event,FM_METADATA,FM_METADATALIST)
     }
     if(connection){
   
-
-  
       try{
         try {
           for(let i=0;i<FM_METADATALIST.length;i++){
@@ -483,6 +480,7 @@ ipcMain.on("createData", async (event,FM_METADATALIST)=>{
   let columnList = [];
   let dataList = [];
   let bindList =[];
+  let values = {};
   try {
     connection = await oracledb.getConnection(dbconfig);
   } catch (error) {
@@ -498,22 +496,14 @@ ipcMain.on("createData", async (event,FM_METADATALIST)=>{
     if(validationErrorMessage===''){
       for(let i=0;i<FM_METADATALIST.length;i++){
         columnList.push(FM_METADATALIST[i].COLUMNNAME);
-        if(null === FM_METADATALIST[i].VALUE){
-          bindList.push('null');
-        }
-        else if('VARCHAR2'===FM_METADATALIST[i].DATATYPE){
-          bindList.push(`'${FM_METADATALIST[i].VALUE}'`);
-        }
-        else{
-          bindList.push(FM_METADATALIST[i].VALUE);
-        }
-        
+        bindList.push(`:${FM_METADATALIST[i].COLUMNNAME}`);
+        values[FM_METADATALIST[i].COLUMNNAME] = FM_METADATALIST[i].VALUE;
       }
       let insertSql = `INSERT INTO ${FM_METADATALIST[0].TABLENAME} ( ${columnList.join(',')} ) VALUES ( ${bindList.join(',')} )`;
       try{
         result = await connection.execute(
           insertSql
-          , {}
+          , values
           ,{autoCommit: true}
         );
       }
@@ -839,6 +829,7 @@ ipcMain.on("settingFM_METADATA", async (event,tableName,FM_METADATALIST)=>{
           AND A.CONSTRAINT_NAME = B.CONSTRAINT_NAME
         )
         SELECT
+        DISTINCT
         A.TABLE_NAME TABLENAME,
         A.COLUMN_NAME COLUMNNAME,
         A.DATA_TYPE DATATYPE,
