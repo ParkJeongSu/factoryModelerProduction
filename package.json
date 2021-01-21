@@ -35,7 +35,7 @@
     "@types/react-dom": "^16.9.5",
     "@types/react-redux": "^7.1.7",
     "csstype": "^2.6.9",
-    "immer": "^6.0.2",
+    "immer": "^8.0.1",
     "jsonfile": "^6.0.1",
     "log4js": "^6.1.2",
     "material-table": "^1.57.2",
